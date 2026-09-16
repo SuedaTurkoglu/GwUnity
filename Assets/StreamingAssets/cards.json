@@ -1,0 +1,54 @@
+{
+  "cards": [
+    {
+      "id": "nr_001",
+      "name": "Geralt of Rivia",
+      "strength": 10,
+      "faction": "Northern Realms",
+      "type": "Melee",
+      "ability": "None",
+      "description": "The White Wolf himself.",
+      "imagePath": "Cards/NR/Geralt"
+    },
+    {
+      "id": "nr_002",
+      "name": "Foltest",
+      "strength": 8,
+      "faction": "Northern Realms",
+      "type": "Melee",
+      "ability": "BoostFaction",
+      "description": "Boosts all Northern Realms units by 1.",
+      "imagePath": "Cards/NR/Foltest"
+    },
+    {
+      "id": "nil_001",
+      "name": "Emhyr var Emreis",
+      "strength": 10,
+      "faction": "Nilfgaard",
+      "type": "Melee",
+      "ability": "None",
+      "description": "The White Flame Dancing on the Graves of his Foes.",
+      "imagePath": "Cards/Nilfgaard/Emhyr"
+    },
+    {
+      "id": "nil_002",
+      "name": "Nilfgaardian Spy",
+      "strength": 1,
+      "faction": "Nilfgaard",
+      "type": "Melee",
+      "ability": "DrawCard",
+      "description": "Allows you to pull a card from the opponent's deck.",
+      "imagePath": "Cards/Nilfgaard/Spy"
+    },
+    {
+      "id": "sco_001",
+      "name": "Vernon Roche",
+      "strength": 7,
+      "faction": "Scoia'tael",
+      "type": "Ranged",
+      "ability": "None",
+      "description": "A loyal commander.",
+      "imagePath": "Cards/Scoia/Roche"
+    }
+  ]
+}
