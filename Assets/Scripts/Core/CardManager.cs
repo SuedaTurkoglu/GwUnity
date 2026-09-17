@@ -1,6 +1,9 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
+using UnityEngine;
+using UnityEngine.Networking;
 using Gwent.Models;
 
 namespace Gwent.Core
@@ -8,6 +11,9 @@ namespace Gwent.Core
     public class CardManager : MonoBehaviour
     {
         public static CardManager Instance { get; private set; }
+
+        public bool IsLoaded { get; private set; }
+        public event Action OnCardsLoaded;
 
         private Dictionary<string, CardData> _cardCache = new Dictionary<string, CardData>();
 
@@ -17,7 +23,7 @@ namespace Gwent.Core
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
-                LoadCards();
+                StartCoroutine(LoadCardsCoroutine());
             }
             else
             {
@@ -25,26 +31,52 @@ namespace Gwent.Core
             }
         }
 
-        private void LoadCards()
+        private IEnumerator LoadCardsCoroutine()
         {
             string filePath = Path.Combine(Application.streamingAssetsPath, "cards.json");
 
-            // Note: On Android, StreamingAssets requires UnityWebRequest.
-            // For now, we'll implement a simple read for editor/PC.
-            if (File.Exists(filePath))
+            // Android'de streamingAssetsPath zaten "jar:file://...!/assets/" formatında gelir,
+            // UnityWebRequest ile doğrudan kullanılabilir. Diğer platformlarda (Editor/PC/Mac)
+            // yerel dosya için "file://" öneki gerekir.
+#if !UNITY_ANDROID
+            if (!filePath.Contains("://"))
             {
-                string jsonContent = File.ReadAllText(filePath);
+                filePath = "file://" + filePath;
+            }
+#endif
+
+            using (UnityWebRequest request = UnityWebRequest.Get(filePath))
+            {
+                yield return request.SendWebRequest();
+
+#if UNITY_2020_1_OR_NEWER
+                bool failed = request.result != UnityWebRequest.Result.Success;
+#else
+                bool failed = request.isNetworkError || request.isHttpError;
+#endif
+                if (failed)
+                {
+                    Debug.LogError($"Card database not found or couldn't be read: {request.error} (path: {filePath})");
+                    yield break;
+                }
+
+                string jsonContent = request.downloadHandler.text;
                 CardDatabase db = JsonUtility.FromJson<CardDatabase>(jsonContent);
+
+                if (db == null || db.cards == null)
+                {
+                    Debug.LogError("cards.json parse edilemedi veya boş. JSON kök objesinin {\"cards\": [...]} formatında olduğundan emin ol.");
+                    yield break;
+                }
 
                 foreach (var card in db.cards)
                 {
                     _cardCache[card.id] = card;
                 }
+
+                IsLoaded = true;
                 Debug.Log($"Loaded {_cardCache.Count} cards successfully.");
-            }
-            else
-            {
-                Debug.LogError($"Card database not found at {filePath}");
+                OnCardsLoaded?.Invoke();
             }
         }
 

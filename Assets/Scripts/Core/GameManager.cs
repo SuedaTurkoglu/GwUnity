@@ -13,8 +13,10 @@ namespace Gwent.Core
         public GameState CurrentState { get; private set; }
         public string LocalPlayerId { get; set; }
 
-        // Event to notify UI when the game officially starts
         public event Action OnGameStarted;
+        public event Action OnGameFinished; // YENİ: winnerId dolunca (status == Finished) tetiklenir
+
+        private GameStatus _previousStatus = GameStatus.Waiting;
 
         void Awake()
         {
@@ -34,17 +36,21 @@ namespace Gwent.Core
             CurrentState = newState;
             CalculateScores();
 
-            // Notify UI to refresh board
             if (Gwent.UI.UIManager.Instance != null)
             {
                 Gwent.UI.UIManager.Instance.RefreshBoard(CurrentState);
             }
 
-            // If the game just transitioned to 'Playing', trigger the event
-            if (CurrentState.status == GameStatus.Playing)
+            if (CurrentState.status == GameStatus.Playing && _previousStatus != GameStatus.Playing)
             {
                 OnGameStarted?.Invoke();
             }
+            else if (CurrentState.status == GameStatus.Finished && _previousStatus != GameStatus.Finished)
+            {
+                OnGameFinished?.Invoke();
+            }
+
+            _previousStatus = CurrentState.status;
         }
 
         private void CalculateScores()
@@ -81,12 +87,6 @@ namespace Gwent.Core
         {
             if (CurrentState == null) return false;
             return CurrentState.currentTurnPlayerId == LocalPlayerId;
-        }
-
-        public void PlayCard(string cardId, string rowType)
-        {
-            if (!CanPlayCard()) return;
-            // Handled by FirestoreGameManager.Instance.PushMove
         }
     }
 }

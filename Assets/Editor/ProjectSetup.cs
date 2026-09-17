@@ -8,7 +8,7 @@ namespace Gwent.Editor
         [MenuItem("Tools/Gwent Setup/Set Package Name")]
         public static void SetPackageName()
         {
-            string packageName = "com.mst29.gwentmobile";
+            string packageName = "com.mst.gwentmobile";
             PlayerSettings.applicationIdentifier = packageName;
             Debug.Log($"Project Package Name has been set to: {packageName}");
         }

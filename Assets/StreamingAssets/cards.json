@@ -1,54 +1,14 @@
 {
   "cards": [
-    {
-      "id": "nr_001",
-      "name": "Geralt of Rivia",
-      "strength": 10,
-      "faction": "Northern Realms",
-      "type": "Melee",
-      "ability": "None",
-      "description": "The White Wolf himself.",
-      "imagePath": "Cards/NR/Geralt"
-    },
-    {
-      "id": "nr_002",
-      "name": "Foltest",
-      "strength": 8,
-      "faction": "Northern Realms",
-      "type": "Melee",
-      "ability": "BoostFaction",
-      "description": "Boosts all Northern Realms units by 1.",
-      "imagePath": "Cards/NR/Foltest"
-    },
-    {
-      "id": "nil_001",
-      "name": "Emhyr var Emreis",
-      "strength": 10,
-      "faction": "Nilfgaard",
-      "type": "Melee",
-      "ability": "None",
-      "description": "The White Flame Dancing on the Graves of his Foes.",
-      "imagePath": "Cards/Nilfgaard/Emhyr"
-    },
-    {
-      "id": "nil_002",
-      "name": "Nilfgaardian Spy",
-      "strength": 1,
-      "faction": "Nilfgaard",
-      "type": "Melee",
-      "ability": "DrawCard",
-      "description": "Allows you to pull a card from the opponent's deck.",
-      "imagePath": "Cards/Nilfgaard/Spy"
-    },
-    {
-      "id": "sco_001",
-      "name": "Vernon Roche",
-      "strength": 7,
-      "faction": "Scoia'tael",
-      "type": "Ranged",
-      "ability": "None",
-      "description": "A loyal commander.",
-      "imagePath": "Cards/Scoia/Roche"
-    }
+    { "id": "n001", "name": "Kuzey Piyadesi", "strength": 4, "faction": "Northern", "row": "Melee", "ability": "None" },
+    { "id": "n002", "name": "Vernon Roche", "strength": 10, "faction": "Northern", "row": "Melee", "ability": "Hero" },
+    { "id": "n003", "name": "Kuzey Okçusu", "strength": 3, "faction": "Northern", "row": "Ranged", "ability": "None" },
+    { "id": "n004", "name": "Mangonel", "strength": 6, "faction": "Northern", "row": "Siege", "ability": "None" },
+    { "id": "n005", "name": "Kuzey Casusu", "strength": 2, "faction": "Northern", "row": "Ranged", "ability": "Spy" },
+    { "id": "nf001", "name": "Nilfgaard Askeri", "strength": 5, "faction": "Nilfgaard", "row": "Melee", "ability": "None" },
+    { "id": "nf002", "name": "Cahir", "strength": 8, "faction": "Nilfgaard", "row": "Melee", "ability": "Hero" },
+    { "id": "nf003", "name": "Nilfgaard Mancınığı", "strength": 7, "faction": "Nilfgaard", "row": "Siege", "ability": "None" },
+    { "id": "m001", "name": "Ghoul", "strength": 3, "faction": "Monsters", "row": "Melee", "ability": "Muster" },
+    { "id": "m002", "name": "Grifin", "strength": 5, "faction": "Monsters", "row": "Ranged", "ability": "None" }
   ]
 }

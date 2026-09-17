@@ -43,7 +43,6 @@ namespace Gwent.Networking
             }
         }
 
-        // Yeni: Maç Oluşturma Fonksiyonu
         public async Task<string> CreateMatch(string p1Id)
         {
             GameState newState = new GameState
@@ -72,8 +71,13 @@ namespace Gwent.Networking
                     GameState state = snapshot.ConvertTo<GameState>();
                     Core.GameManager.Instance.UpdateGameState(state);
 
-                    // Eğer maç bekliyorsa ve biz 2. oyuncuysak, kendimizi ekleyelim
-                    if (state.status == GameStatus.Waiting && state.player2Id == null)
+                    // ÖNEMLİ DÜZELTME: sadece gerçekten player1 OLMAYAN client
+                    // kendini 2. oyuncu olarak eklemeli. Bu satır olmadan,
+                    // maçı oluşturan kişi kendi listener'ında bu koşulu anında
+                    // karşılayıp kendi kendine 2. oyuncu oluyordu.
+                    if (state.status == GameStatus.Waiting
+                        && state.player2Id == null
+                        && Core.GameManager.Instance.LocalPlayerId != state.player1Id)
                     {
                         SetAsPlayer2();
                     }
@@ -88,7 +92,6 @@ namespace Gwent.Networking
 
             state.player2Id = Core.GameManager.Instance.LocalPlayerId;
 
-            // Deal cards when the second player joins
             DealCards(state);
 
             state.status = GameStatus.Playing;
@@ -101,15 +104,15 @@ namespace Gwent.Networking
         {
             var allCards = Core.CardManager.Instance.GetAllCards();
 
-            // Simple deal: Give 5 random cards to each player
+            // Basit dağıtım: her oyuncuya 5 rastgele kart
             state.p1Hand = ShuffleAndPick(allCards, 5);
             state.p2Hand = ShuffleAndPick(allCards, 5);
         }
 
-        private List<string> ShuffleAndPick(List<Gwent.Models.CardData> cards, int count)
+        private List<string> ShuffleAndPick(List<CardData> cards, int count)
         {
             List<string> ids = new List<string>();
-            List<Gwent.Models.CardData> pool = new List<Gwent.Models.CardData>(cards);
+            List<CardData> pool = new List<CardData>(cards);
 
             for (int i = 0; i < count && pool.Count > 0; i++)
             {
@@ -128,21 +131,98 @@ namespace Gwent.Networking
             GameState state = snapshot.ConvertTo<GameState>();
 
             string playerId = Core.GameManager.Instance.LocalPlayerId;
+            bool isPlayer1 = playerId == state.player1Id;
 
-            if (playerId == state.player1Id)
-            {
+            // Kartı sahaya ekle
+            if (isPlayer1)
                 AddCardToRow(state.p1Melee, state.p1Ranged, state.p1Siege, cardId, rowType);
-            }
             else
-            {
                 AddCardToRow(state.p2Melee, state.p2Ranged, state.p2Siege, cardId, rowType);
-            }
+
+            // DÜZELTME: kartı elden çıkar, yoksa aynı kart tekrar oynanabilir
+            var hand = isPlayer1 ? state.p1Hand : state.p2Hand;
+            hand.Remove(cardId);
 
             state.lastMoveCardId = cardId;
             state.lastMovePlayerId = playerId;
             state.currentTurnPlayerId = (state.currentTurnPlayerId == state.player1Id) ? state.player2Id : state.player1Id;
 
             await _matchRef.SetAsync(state);
+        }
+
+        public async Task PushPass()
+        {
+            if (_matchRef == null) return;
+
+            var snapshot = await _matchRef.GetSnapshotAsync();
+            GameState state = snapshot.ConvertTo<GameState>();
+
+            string playerId = Core.GameManager.Instance.LocalPlayerId;
+            bool isPlayer1 = playerId == state.player1Id;
+
+            if (isPlayer1) state.p1Passed = true;
+            else state.p2Passed = true;
+
+            // Sıra: rakip pas geçmediyse ona geç, o da geçtiyse (round bitiyor) sırayı takmıyoruz
+            if (!(isPlayer1 ? state.p2Passed : state.p1Passed))
+            {
+                state.currentTurnPlayerId = isPlayer1 ? state.player2Id : state.player1Id;
+            }
+
+            if (state.p1Passed && state.p2Passed)
+            {
+                ResolveRound(state);
+            }
+
+            await _matchRef.SetAsync(state);
+        }
+
+        private void ResolveRound(GameState state)
+        {
+            int p1Power = SumRowStrength(state.p1Melee) + SumRowStrength(state.p1Ranged) + SumRowStrength(state.p1Siege);
+            int p2Power = SumRowStrength(state.p2Melee) + SumRowStrength(state.p2Ranged) + SumRowStrength(state.p2Siege);
+
+            if (p1Power > p2Power) { state.p1RoundsWon++; state.p2Lives--; }
+            else if (p2Power > p1Power) { state.p2RoundsWon++; state.p1Lives--; }
+            else { state.p1Lives--; state.p2Lives--; } // berabere: ikisi de can kaybeder
+
+            if (state.p1Lives <= 0 || state.p2Lives <= 0)
+            {
+                state.status = GameStatus.Finished;
+                state.winnerId = state.p1Lives <= 0 ? state.player2Id : state.player1Id;
+                return;
+            }
+
+            // Yeni round: sahadaki kartlar mezarlığa gider, eller korunur
+            state.p1Graveyard.AddRange(state.p1Melee);
+            state.p1Graveyard.AddRange(state.p1Ranged);
+            state.p1Graveyard.AddRange(state.p1Siege);
+            state.p2Graveyard.AddRange(state.p2Melee);
+            state.p2Graveyard.AddRange(state.p2Ranged);
+            state.p2Graveyard.AddRange(state.p2Siege);
+
+            state.p1Melee.Clear(); state.p1Ranged.Clear(); state.p1Siege.Clear();
+            state.p2Melee.Clear(); state.p2Ranged.Clear(); state.p2Siege.Clear();
+
+            state.p1Passed = false;
+            state.p2Passed = false;
+            state.currentRound++;
+
+            // Bir önceki round'u kaybeden oyuncu yeni round'a başlar (Gwent kuralı).
+            // Berabere durumda player1 başlar (basit tutuyoruz).
+            if (p1Power > p2Power) state.currentTurnPlayerId = state.player2Id;
+            else state.currentTurnPlayerId = state.player1Id;
+        }
+
+        private int SumRowStrength(List<string> cardIds)
+        {
+            int sum = 0;
+            foreach (var id in cardIds)
+            {
+                var card = Core.CardManager.Instance.GetCardById(id);
+                if (card != null) sum += card.strength;
+            }
+            return sum;
         }
 
         private void AddCardToRow(List<string> melee, List<string> ranged, List<string> siege, string cardId, string rowType)

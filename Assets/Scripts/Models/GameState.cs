@@ -1,36 +1,56 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Firebase.Firestore;
 
 namespace Gwent.Models
 {
-    [Serializable]
+    // [FirestoreData] + [FirestoreProperty]: Firebase Firestore SDK'nın bu sınıfı
+    // otomatik olarak Firestore dökümanına yazıp okuyabilmesi (SetAsync / ConvertTo<GameState>)
+    // için gereklidir. Bunlar olmadan (de)serialization çalışma zamanında sorun çıkarabilir.
+    [FirestoreData]
     public class GameState
     {
-        public string matchId;
-        public string player1Id;
-        public string player2Id;
-        public string currentTurnPlayerId;
-        public GameStatus status = GameStatus.Waiting;
+        [FirestoreProperty] public string matchId { get; set; }
+        [FirestoreProperty] public string player1Id { get; set; }
+        [FirestoreProperty] public string player2Id { get; set; }
+        [FirestoreProperty] public string currentTurnPlayerId { get; set; }
+        [FirestoreProperty] public GameStatus status { get; set; } = GameStatus.Waiting;
 
-        // Hands
-        public List<string> p1Hand = new List<string>();
-        public List<string> p2Hand = new List<string>();
+        // Eller
+        [FirestoreProperty] public List<string> p1Hand { get; set; } = new List<string>();
+        [FirestoreProperty] public List<string> p2Hand { get; set; } = new List<string>();
 
-        // Boards: PlayerID -> RowType -> List of CardIDs
-        public List<string> p1Melee = new List<string>();
-        public List<string> p1Ranged = new List<string>();
-        public List<string> p1Siege = new List<string>();
+        // Sahalar
+        [FirestoreProperty] public List<string> p1Melee { get; set; } = new List<string>();
+        [FirestoreProperty] public List<string> p1Ranged { get; set; } = new List<string>();
+        [FirestoreProperty] public List<string> p1Siege { get; set; } = new List<string>();
 
-        public List<string> p2Melee = new List<string>();
-        public List<string> p2Ranged = new List<string>();
-        public List<string> p2Siege = new List<string>();
+        [FirestoreProperty] public List<string> p2Melee { get; set; } = new List<string>();
+        [FirestoreProperty] public List<string> p2Ranged { get; set; } = new List<string>();
+        [FirestoreProperty] public List<string> p2Siege { get; set; } = new List<string>();
 
-        public int p1TotalStrength;
-        public int p2TotalStrength;
+        // Mezarlık (round sonunda sahadaki kartlar buraya taşınır; ileride Medic yeteneği için lazım)
+        [FirestoreProperty] public List<string> p1Graveyard { get; set; } = new List<string>();
+        [FirestoreProperty] public List<string> p2Graveyard { get; set; } = new List<string>();
 
-        public string lastMoveCardId;
-        public string lastMovePlayerId;
+        [FirestoreProperty] public int p1TotalStrength { get; set; }
+        [FirestoreProperty] public int p2TotalStrength { get; set; }
+
+        // Pas durumu (round bitişini belirlemek için)
+        [FirestoreProperty] public bool p1Passed { get; set; }
+        [FirestoreProperty] public bool p2Passed { get; set; }
+
+        // Can / round takibi (Gwent: 2 round kaybedince oyunu kaybedersin)
+        [FirestoreProperty] public int p1Lives { get; set; } = 2;
+        [FirestoreProperty] public int p2Lives { get; set; } = 2;
+        [FirestoreProperty] public int p1RoundsWon { get; set; }
+        [FirestoreProperty] public int p2RoundsWon { get; set; }
+        [FirestoreProperty] public int currentRound { get; set; } = 1;
+
+        [FirestoreProperty] public string lastMoveCardId { get; set; }
+        [FirestoreProperty] public string lastMovePlayerId { get; set; }
+
+        // Maç bitince kazananın id'si buraya yazılır
+        [FirestoreProperty] public string winnerId { get; set; }
     }
 
     public enum GameStatus
