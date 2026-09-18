@@ -28,8 +28,12 @@ namespace Gwent.UI
 
         [Header("Round / Game Info")]
         public TextMeshProUGUI roundInfoText; // "Round 2 - Senin Canın: 2 / Rakip: 1" gibi
+        public TextMeshProUGUI feedbackText; // Kullanıcıya anlık geri bildirimler (Sıra sende, hata vb.)
+
 
         private string _selectedCardId;
+        private System.Collections.IEnumerator _feedbackCoroutine;
+
 
         void Awake()
         {
@@ -150,7 +154,7 @@ namespace Gwent.UI
 
             if (!Core.GameManager.Instance.CanPlayCard())
             {
-                Debug.Log("Sıra sende değil, kart oynayamazsın.");
+                ShowFeedback("Sıra sende değil, kart oynayamazsın.");
                 return;
             }
 
@@ -158,13 +162,13 @@ namespace Gwent.UI
             var cardData = CardManager.Instance.GetCardById(_selectedCardId);
             if (cardData == null)
             {
-                Debug.LogWarning($"Kart verisi bulunamadı: {_selectedCardId}");
+                ShowFeedback("Kart verisi bulunamadı!");
                 return;
             }
 
             if (cardData.row != "Any" && cardData.row != rowType)
             {
-                Debug.Log($"'{cardData.name}' sadece {cardData.row} sırasına oynanabilir, {rowType} sırasına değil.");
+                ShowFeedback($"'{cardData.name}' sadece {cardData.row} sırasına oynanabilir.");
                 return; // seçim iptal olmuyor, kullanıcı doğru sıraya tıklayabilir
             }
 
@@ -176,11 +180,32 @@ namespace Gwent.UI
         {
             if (!Core.GameManager.Instance.CanPlayCard())
             {
-                Debug.Log("Sıra sende değil, pas geçemezsin.");
+                ShowFeedback("Sıra sende değil, pas geçemezsin.");
                 return;
             }
 
             FirestoreGameManager.Instance.PushPass();
+        }
+
+        public void ShowFeedback(string message, float duration = 3f)
+        {
+            if (feedbackText == null) return;
+
+            if (_feedbackCoroutine != null)
+            {
+                StopCoroutine(_feedbackCoroutine);
+            }
+
+            feedbackText.text = message;
+            _feedbackCoroutine = ClearFeedbackAfterDelay(duration);
+            StartCoroutine(_feedbackCoroutine);
+        }
+
+        private System.Collections.IEnumerator ClearFeedbackAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            feedbackText.text = "";
+            _feedbackCoroutine = null;
         }
     }
 }
