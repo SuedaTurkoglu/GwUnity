@@ -93,5 +93,24 @@ namespace Gwent.Core
         {
             return new List<CardData>(_cardCache.Values);
         }
+
+        // Statik: CardView ve CardDetailPopup gibi farklı yerlerden aynı mantıkla
+        // sprite yüklemek için kullanılır, kod tekrarını önler.
+        public static Sprite LoadCardSprite(string imagePath)
+        {
+            if (string.IsNullOrEmpty(imagePath)) return null;
+
+            string cleanPath = imagePath;
+            int dot = cleanPath.LastIndexOf('.');
+            if (dot >= 0) cleanPath = cleanPath.Substring(0, dot);
+
+            Sprite sprite = Resources.Load<Sprite>(cleanPath);
+            if (sprite == null)
+            {
+                Debug.LogWarning($"Kart görseli bulunamadı: Resources/{cleanPath} (orijinal yol: {imagePath}). " +
+                                  "Dosyanın Resources klasöründe olduğundan ve Texture Type'ının 'Sprite (2D and UI)' olduğundan emin ol.");
+            }
+            return sprite;
+        }
     }
 }
