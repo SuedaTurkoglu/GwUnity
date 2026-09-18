@@ -113,6 +113,14 @@ namespace Gwent.Core
             return CurrentState.currentTurnPlayerId == LocalPlayerId;
         }
 
+        // YENİ: oyun bitince lobiye dönüp yeni bir maça hazırlanmak için.
+        // LocalPlayerId / LocalFaction'a dokunmuyoruz; kullanıcı Lobide zaten değiştirebilir.
+        public void ResetState()
+        {
+            CurrentState = null;
+            _previousStatus = GameStatus.Waiting;
+        }
+
         void OnDestroy()
         {
             if (CardManager.Instance != null)

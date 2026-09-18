@@ -129,6 +129,19 @@ namespace Gwent.UI
             gamePanel.SetActive(true);
         }
 
+        // YENİ: oyun bitince Game Over ekranındaki butondan çağrılır
+        public void ReturnToLobby()
+        {
+            gamePanel.SetActive(false);
+            lobbyPanel.SetActive(true);
+
+            if (matchIdDisplay != null) matchIdDisplay.text = "Match ID: —";
+            if (matchIdInput != null) matchIdInput.text = string.Empty;
+
+            SetStatus(string.Empty);
+            SetButtonsInteractable(true);
+        }
+
         private void SetButtonsInteractable(bool value)
         {
             createButton.interactable = value;

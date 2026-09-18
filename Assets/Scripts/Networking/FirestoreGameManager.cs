@@ -203,6 +203,8 @@ namespace Gwent.Networking
 
         private void ResolveRound(GameState state)
         {
+            if (state.status == GameStatus.Finished) return;
+
             int p1Power = SumRowStrength(state.p1Melee) + SumRowStrength(state.p1Ranged) + SumRowStrength(state.p1Siege);
             int p2Power = SumRowStrength(state.p2Melee) + SumRowStrength(state.p2Ranged) + SumRowStrength(state.p2Siege);
 
@@ -257,6 +259,14 @@ namespace Gwent.Networking
                 case "Ranged": ranged.Add(cardId); break;
                 case "Siege": siege.Add(cardId); break;
             }
+        }
+
+        // YENİ: oyun bitince veya lobiye dönerken bu maçı dinlemeyi bırak
+        public void LeaveMatch()
+        {
+            _snapshotListener?.Stop();
+            _snapshotListener = null;
+            _matchRef = null;
         }
 
         void OnDestroy()
