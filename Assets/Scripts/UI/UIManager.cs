@@ -32,6 +32,7 @@ namespace Gwent.UI
 
 
         private string _selectedCardId;
+        private CardView _selectedCardView; // Seçili olan kartın görsel referansı
         private System.Collections.IEnumerator _feedbackCoroutine;
 
 
@@ -137,14 +138,29 @@ namespace Gwent.UI
                 if (btn != null)
                 {
                     string capturedId = id; // closure için yerel kopya
-                    btn.onClick.AddListener(() => SelectCard(capturedId));
+                    CardView capturedView = cardView; // closure için yerel kopya
+                    btn.onClick.AddListener(() => SelectCard(capturedView, capturedId));
                 }
             }
         }
 
-        private void SelectCard(string id)
+        private void SelectCard(CardView cardView, string id)
         {
+            // Önceki seçili kartın outline'ını kapat
+            if (_selectedCardView != null)
+            {
+                _selectedCardView.SetSelected(false);
+            }
+
             _selectedCardId = id;
+            _selectedCardView = cardView;
+
+            // Yeni seçilen kartın outline'ını aç
+            if (_selectedCardView != null)
+            {
+                _selectedCardView.SetSelected(true);
+            }
+
             Debug.Log($"Selected card: {id}");
         }
 
@@ -173,6 +189,14 @@ namespace Gwent.UI
             }
 
             FirestoreGameManager.Instance.PushMove(_selectedCardId, rowType);
+
+            // Kart oynandı, outline'ı kapat
+            if (_selectedCardView != null)
+            {
+                _selectedCardView.SetSelected(false);
+                _selectedCardView = null;
+            }
+
             _selectedCardId = null;
         }
 

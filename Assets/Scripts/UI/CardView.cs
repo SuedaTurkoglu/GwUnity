@@ -14,6 +14,7 @@ namespace Gwent.UI
         public Image artworkImage;
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI powerText;
+        public GameObject outline; // Seçili olduğunda görünür olur
         public Button infoButton; // YENİ: detay popup'ını açar
 
         private CardData _data;
@@ -50,6 +51,17 @@ namespace Gwent.UI
                     artworkImage.sprite = null;
                     artworkImage.color = new Color(0.16f, 0.14f, 0.12f, 1f);
                 }
+            }
+
+            // Kart ilk oluşturulduğunda outline her zaman kapalı olmalı
+            SetSelected(false);
+        }
+
+        public void SetSelected(bool isSelected)
+        {
+            if (outline != null)
+            {
+                outline.SetActive(isSelected);
             }
         }
     }
