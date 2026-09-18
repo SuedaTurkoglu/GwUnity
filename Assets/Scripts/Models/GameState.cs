@@ -12,6 +12,8 @@ namespace Gwent.Models
         [FirestoreProperty] public string matchId { get; set; }
         [FirestoreProperty] public string player1Id { get; set; }
         [FirestoreProperty] public string player2Id { get; set; }
+        [FirestoreProperty] public string player1Faction { get; set; } // "Northern", "Nilfgaard", "ScoiaTael", "Monsters", "Skellige"
+        [FirestoreProperty] public string player2Faction { get; set; }
         [FirestoreProperty] public string currentTurnPlayerId { get; set; }
         [FirestoreProperty] public GameStatus status { get; set; } = GameStatus.Waiting;
 

@@ -12,6 +12,7 @@ namespace Gwent.Core
 
         public GameState CurrentState { get; private set; }
         public string LocalPlayerId { get; set; }
+        public string LocalFaction { get; set; } // Lobide seçilen fraksiyon kodu ("Northern" vb.)
 
         public event Action OnGameStarted;
         public event Action OnGameFinished; // YENİ: winnerId dolunca (status == Finished) tetiklenir
@@ -28,6 +29,29 @@ namespace Gwent.Core
             else
             {
                 Destroy(gameObject);
+            }
+        }
+
+        void Start()
+        {
+            // Kartlar CardManager'da asenkron (coroutine ile) yükleniyor.
+            // Eğer bir state güncellemesi kartlar daha yüklenmeden gelirse
+            // (özellikle mobil cihazda dosya okuma PC'den daha yavaş olabilir),
+            // hand/board boş görünür. Kartlar yüklenince ekranı zorla yeniden çiz.
+            if (CardManager.Instance != null)
+            {
+                CardManager.Instance.OnCardsLoaded += HandleCardsLoaded;
+            }
+        }
+
+        private void HandleCardsLoaded()
+        {
+            if (CurrentState != null)
+            {
+                if (Gwent.UI.UIManager.Instance != null)
+                {
+                    Gwent.UI.UIManager.Instance.RefreshBoard(CurrentState);
+                }
             }
         }
 
@@ -87,6 +111,14 @@ namespace Gwent.Core
         {
             if (CurrentState == null) return false;
             return CurrentState.currentTurnPlayerId == LocalPlayerId;
+        }
+
+        void OnDestroy()
+        {
+            if (CardManager.Instance != null)
+            {
+                CardManager.Instance.OnCardsLoaded -= HandleCardsLoaded;
+            }
         }
     }
 }

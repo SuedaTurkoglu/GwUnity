@@ -3,6 +3,7 @@ using Firebase;
 using Firebase.Firestore;
 using Gwent.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Gwent.Networking
@@ -49,6 +50,7 @@ namespace Gwent.Networking
             {
                 matchId = System.Guid.NewGuid().ToString(),
                 player1Id = p1Id,
+                player1Faction = Core.GameManager.Instance.LocalFaction,
                 currentTurnPlayerId = p1Id,
                 status = GameStatus.Waiting
             };
@@ -91,6 +93,7 @@ namespace Gwent.Networking
             GameState state = snapshot.ConvertTo<GameState>();
 
             state.player2Id = Core.GameManager.Instance.LocalPlayerId;
+            state.player2Faction = Core.GameManager.Instance.LocalFaction;
 
             DealCards(state);
 
@@ -104,9 +107,17 @@ namespace Gwent.Networking
         {
             var allCards = Core.CardManager.Instance.GetAllCards();
 
-            // Basit dağıtım: her oyuncuya 5 rastgele kart
-            state.p1Hand = ShuffleAndPick(allCards, 5);
-            state.p2Hand = ShuffleAndPick(allCards, 5);
+            // YENİ: her oyuncunun havuzu kendi fraksiyonu + Neutral kartlardan oluşuyor
+            var p1Pool = allCards.Where(c => c.faction == state.player1Faction || c.faction == "Neutral").ToList();
+            var p2Pool = allCards.Where(c => c.faction == state.player2Faction || c.faction == "Neutral").ToList();
+
+            if (p1Pool.Count == 0)
+                Debug.LogWarning($"P1 için '{state.player1Faction}' fraksiyonunda hiç kart bulunamadı. cards.json'daki 'faction' değerlerini kontrol et.");
+            if (p2Pool.Count == 0)
+                Debug.LogWarning($"P2 için '{state.player2Faction}' fraksiyonunda hiç kart bulunamadı. cards.json'daki 'faction' değerlerini kontrol et.");
+
+            state.p1Hand = ShuffleAndPick(p1Pool, 5);
+            state.p2Hand = ShuffleAndPick(p2Pool, 5);
         }
 
         private List<string> ShuffleAndPick(List<CardData> cards, int count)
@@ -126,6 +137,19 @@ namespace Gwent.Networking
         public async Task PushMove(string cardId, string rowType)
         {
             if (_matchRef == null) return;
+
+            // YENİ: kartın kendi satırıyla hedef satır uyuşuyor mu kontrol et
+            var cardData = Core.CardManager.Instance.GetCardById(cardId);
+            if (cardData == null)
+            {
+                Debug.LogWarning($"PushMove: kart verisi bulunamadı: {cardId}");
+                return;
+            }
+            if (cardData.row != "Any" && cardData.row != rowType)
+            {
+                Debug.LogWarning($"PushMove: '{cardData.name}' {cardData.row} sırasına ait, {rowType} sırasına oynanamaz.");
+                return;
+            }
 
             var snapshot = await _matchRef.GetSnapshotAsync();
             GameState state = snapshot.ConvertTo<GameState>();

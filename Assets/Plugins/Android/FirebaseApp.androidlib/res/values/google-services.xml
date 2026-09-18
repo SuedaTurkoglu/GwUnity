@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id">
+  <string name="gcm_defaultSenderId" translatable="false">310037508430</string>
+  <string name="google_storage_bucket" translatable="false">gwentfirebase.firebasestorage.app</string>
+  <string name="project_id" translatable="false">gwentfirebase</string>
+  <string name="google_api_key" translatable="false">AIzaSyBwJt1o-DAHXk6nx2-KZ7z8ZsfW8tptYLY</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBwJt1o-DAHXk6nx2-KZ7z8ZsfW8tptYLY</string>
+  <string name="google_app_id" translatable="false">1:310037508430:android:0b43e32e7291f300d2ae1f</string>
+</resources>

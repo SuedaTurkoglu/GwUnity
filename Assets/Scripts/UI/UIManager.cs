@@ -108,8 +108,8 @@ namespace Gwent.UI
                 }
 
                 GameObject cardObj = Instantiate(cardPrefab, container);
-                var label = cardObj.GetComponentInChildren<TextMeshProUGUI>();
-                if (label != null) label.text = $"{cardData.name} ({cardData.strength})";
+                var cardView = cardObj.GetComponent<CardView>();
+                if (cardView != null) cardView.Setup(cardData);
             }
         }
 
@@ -126,8 +126,8 @@ namespace Gwent.UI
                 if (cardData == null) continue;
 
                 GameObject cardObj = Instantiate(cardPrefab, handContainer);
-                var label = cardObj.GetComponentInChildren<TextMeshProUGUI>();
-                if (label != null) label.text = cardData.name;
+                var cardView = cardObj.GetComponent<CardView>();
+                if (cardView != null) cardView.Setup(cardData);
 
                 Button btn = cardObj.GetComponent<Button>();
                 if (btn != null)
@@ -148,11 +148,24 @@ namespace Gwent.UI
         {
             if (string.IsNullOrEmpty(_selectedCardId)) return;
 
-            // DÜZELTME: sıra kontrolü olmadan rakip de kart oynayabiliyordu
             if (!Core.GameManager.Instance.CanPlayCard())
             {
                 Debug.Log("Sıra sende değil, kart oynayamazsın.");
                 return;
+            }
+
+            // YENİ: kart sadece kendi tanımlı satırında (row) oynanabilir.
+            var cardData = CardManager.Instance.GetCardById(_selectedCardId);
+            if (cardData == null)
+            {
+                Debug.LogWarning($"Kart verisi bulunamadı: {_selectedCardId}");
+                return;
+            }
+
+            if (cardData.row != "Any" && cardData.row != rowType)
+            {
+                Debug.Log($"'{cardData.name}' sadece {cardData.row} sırasına oynanabilir, {rowType} sırasına değil.");
+                return; // seçim iptal olmuyor, kullanıcı doğru sıraya tıklayabilir
             }
 
             FirestoreGameManager.Instance.PushMove(_selectedCardId, rowType);

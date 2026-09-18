@@ -21,6 +21,20 @@ namespace Gwent.UI
         public TextMeshProUGUI statusText; // YENİ: hata / bekleme mesajları için
         public Button createButton;
         public Button joinButton;
+        public TMP_Dropdown factionDropdown; // YENİ: fraksiyon seçimi
+
+        // Dropdown'daki sıra ile BİREBİR aynı olmalı (index eşleşmesi için)
+        private static readonly string[] FactionCodes =
+        {
+            "Northern", "Nilfgaard", "ScoiaTael", "Monsters", "Skellige"
+        };
+
+        private string GetSelectedFactionCode()
+        {
+            if (factionDropdown == null) return FactionCodes[0];
+            int idx = Mathf.Clamp(factionDropdown.value, 0, FactionCodes.Length - 1);
+            return FactionCodes[idx];
+        }
 
         void Awake()
         {
@@ -62,6 +76,7 @@ namespace Gwent.UI
             try
             {
                 GameManager.Instance.LocalPlayerId = pId;
+                GameManager.Instance.LocalFaction = GetSelectedFactionCode();
                 string matchId = await FirestoreGameManager.Instance.CreateMatch(pId);
 
                 matchIdDisplay.text = $"Match ID: {matchId}";
@@ -95,6 +110,7 @@ namespace Gwent.UI
             try
             {
                 GameManager.Instance.LocalPlayerId = pId;
+                GameManager.Instance.LocalFaction = GetSelectedFactionCode();
                 FirestoreGameManager.Instance.JoinMatch(mId); // void: sadece Firestore listener'ı kuruyor
                 SetStatus("Maça katılınıyor, kartlar dağıtılıyor...");
                 // UI geçişi burada değil, OnGameStarted event'i tetiklenince (EnterGame) olacak.
