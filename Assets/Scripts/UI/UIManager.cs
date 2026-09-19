@@ -213,7 +213,13 @@ namespace Gwent.UI
 
         public void ShowFeedback(string message, float duration = 3f)
         {
-            if (feedbackText == null) return;
+            Debug.Log($"[Feedback System] Mesaj gönderildi: {message}");
+
+            if (feedbackText == null)
+            {
+                Debug.LogError("[Feedback System] HATA: feedbackText referansı atanmamış! Lütfen Inspector panelinden atama yapın.");
+                return;
+            }
 
             if (_feedbackCoroutine != null)
             {

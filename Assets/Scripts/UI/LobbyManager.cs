@@ -55,6 +55,13 @@ namespace Gwent.UI
             gamePanel.SetActive(false);
             SetStatus(string.Empty);
 
+            // Otomatik ID ataması ve input alanını kilitleme
+            if (playerIdInput != null)
+            {
+                playerIdInput.text = GameManager.Instance.LocalPlayerId;
+                playerIdInput.interactable = false; // Kullanıcının değiştirmesini engelle
+            }
+
             createButton.onClick.AddListener(OnCreateMatchClicked);
             joinButton.onClick.AddListener(OnJoinMatchClicked);
 
@@ -63,10 +70,10 @@ namespace Gwent.UI
 
         private async void OnCreateMatchClicked()
         {
-            string pId = playerIdInput.text.Trim();
+            string pId = GameManager.Instance.LocalPlayerId; // Doğrudan GameManager'dan al
             if (string.IsNullOrEmpty(pId))
             {
-                SetStatus("Lütfen bir Player ID girin.", isError: true);
+                SetStatus("Kullanıcı kimliği oluşturulamadı!", isError: true);
                 return;
             }
 
@@ -75,7 +82,6 @@ namespace Gwent.UI
 
             try
             {
-                GameManager.Instance.LocalPlayerId = pId;
                 GameManager.Instance.LocalFaction = GetSelectedFactionCode();
                 string matchId = await FirestoreGameManager.Instance.CreateMatch(pId);
 
@@ -95,12 +101,12 @@ namespace Gwent.UI
 
         private async void OnJoinMatchClicked()
         {
-            string pId = playerIdInput.text.Trim();
+            string pId = GameManager.Instance.LocalPlayerId; // Doğrudan GameManager'dan al
             string mId = matchIdInput.text.Trim();
 
             if (string.IsNullOrEmpty(pId) || string.IsNullOrEmpty(mId))
             {
-                SetStatus("Lütfen hem Player ID hem Match ID girin.", isError: true);
+                SetStatus("Lütfen Match ID girin.", isError: true);
                 return;
             }
 
@@ -109,7 +115,6 @@ namespace Gwent.UI
 
             try
             {
-                GameManager.Instance.LocalPlayerId = pId;
                 GameManager.Instance.LocalFaction = GetSelectedFactionCode();
                 FirestoreGameManager.Instance.JoinMatch(mId); // void: sadece Firestore listener'ı kuruyor
                 SetStatus("Maça katılınıyor, kartlar dağıtılıyor...");

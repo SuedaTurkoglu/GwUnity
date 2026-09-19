@@ -25,10 +25,29 @@ namespace Gwent.Core
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
+                InitializeLocalPlayerId(); // ID yönetimini burada yapıyoruz
             }
             else
             {
                 Destroy(gameObject);
+            }
+        }
+
+        private void InitializeLocalPlayerId()
+        {
+            // PlayerPrefs ile kalıcı kimlik kontrolü
+            if (PlayerPrefs.HasKey("LocalPlayerId"))
+            {
+                LocalPlayerId = PlayerPrefs.GetString("LocalPlayerId");
+                Debug.Log($"Kayıtlı Kullanıcı ID yüklendi: {LocalPlayerId}");
+            }
+            else
+            {
+                // Yoksa yeni bir GUID oluştur ve kaydet
+                LocalPlayerId = System.Guid.NewGuid().ToString();
+                PlayerPrefs.SetString("LocalPlayerId", LocalPlayerId);
+                PlayerPrefs.Save();
+                Debug.Log($"Yeni Kullanıcı ID oluşturuldu ve kaydedildi: {LocalPlayerId}");
             }
         }
 
