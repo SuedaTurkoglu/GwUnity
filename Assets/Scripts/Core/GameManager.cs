@@ -84,27 +84,22 @@ namespace Gwent.Core
             int p1Sum = 0;
             int p2Sum = 0;
 
-            p1Sum += SumRow(CurrentState.p1Melee);
-            p1Sum += SumRow(CurrentState.p1Ranged);
-            p1Sum += SumRow(CurrentState.p1Siege);
+            p1Sum += AbilityManager.ComputeRowTotal(CurrentState.p1Melee, CurrentState.weatherMelee, CurrentState.p1HornMelee);
+            p1Sum += AbilityManager.ComputeRowTotal(CurrentState.p1Ranged, CurrentState.weatherRanged, CurrentState.p1HornRanged);
+            p1Sum += AbilityManager.ComputeRowTotal(CurrentState.p1Siege, CurrentState.weatherSiege, CurrentState.p1HornSiege);
 
-            p2Sum += SumRow(CurrentState.p2Melee);
-            p2Sum += SumRow(CurrentState.p2Ranged);
-            p2Sum += SumRow(CurrentState.p2Siege);
+            p2Sum += AbilityManager.ComputeRowTotal(CurrentState.p2Melee, CurrentState.weatherMelee, CurrentState.p2HornMelee);
+            p2Sum += AbilityManager.ComputeRowTotal(CurrentState.p2Ranged, CurrentState.weatherRanged, CurrentState.p2HornRanged);
+            p2Sum += AbilityManager.ComputeRowTotal(CurrentState.p2Siege, CurrentState.weatherSiege, CurrentState.p2HornSiege);
 
             CurrentState.p1TotalStrength = p1Sum;
             CurrentState.p2TotalStrength = p2Sum;
         }
 
+        // Artık kullanılmıyor, silinebilir veya bırakılabilir.
         private int SumRow(List<string> cardIds)
         {
-            int sum = 0;
-            foreach (var id in cardIds)
-            {
-                var card = CardManager.Instance.GetCardById(id);
-                if (card != null) sum += card.strength;
-            }
-            return sum;
+            return 0;
         }
 
         public bool CanPlayCard()

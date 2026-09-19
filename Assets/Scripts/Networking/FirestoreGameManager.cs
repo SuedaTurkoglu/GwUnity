@@ -157,11 +157,27 @@ namespace Gwent.Networking
             string playerId = Core.GameManager.Instance.LocalPlayerId;
             bool isPlayer1 = playerId == state.player1Id;
 
-            // Kartı sahaya ekle
-            if (isPlayer1)
-                AddCardToRow(state.p1Melee, state.p1Ranged, state.p1Siege, cardId, rowType);
-            else
-                AddCardToRow(state.p2Melee, state.p2Ranged, state.p2Siege, cardId, rowType);
+            // --- YETENEK İŞLEME (Ability Processing) ---
+            // Kart sahaya inmeden önce veya indiği an yeteneğini çalıştır
+            Core.AbilityManager.ResolveOnPlayAbility(state, cardData, isPlayer1, rowType);
+
+            // Kartı sahaya ekle (Sadece Unit ve Hero kartları sahada kalır)
+            // Özel yetenekli kartlar (Scorch, Medic, Horn vb.) etkisini gösterip gider.
+            bool isPermanentUnit = cardData.cardType == CardType.Unit || cardData.cardType == CardType.Hero;
+
+            // Ekstra kontrol: JSON'da cardType eksik olsa bile ability'sine bakarak engelle
+            if (cardData.ability == "Scorch" || cardData.ability == "Medic" || cardData.ability == "Horn" || cardData.ability == "Decoy")
+            {
+                isPermanentUnit = false;
+            }
+
+            if (isPermanentUnit)
+            {
+                if (isPlayer1)
+                    AddCardToRow(state.p1Melee, state.p1Ranged, state.p1Siege, cardId, rowType);
+                else
+                    AddCardToRow(state.p2Melee, state.p2Ranged, state.p2Siege, cardId, rowType);
+            }
 
             // DÜZELTME: kartı elden çıkar, yoksa aynı kart tekrar oynanabilir
             var hand = isPlayer1 ? state.p1Hand : state.p2Hand;
