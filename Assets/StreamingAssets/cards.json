@@ -1,6 +1,222 @@
 {
   "cards": [
     {
+      "id": "nr_l1",
+      "name": "Foltest: Temerya Kralı",
+      "strength": 0,
+      "faction": "Northern",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Destenizden bir Yoğun Sis kartı seçip hemen oynar.",
+      "imagePath": "images/cards/northern/foltest_1.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "nr_l2",
+      "name": "Foltest: Kuzeyin Başkomutanı",
+      "strength": 0,
+      "faction": "Northern",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Oyundaki tüm hava kartı etkilerini temizler.",
+      "imagePath": "images/cards/northern/foltest_2.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "nr_l3",
+      "name": "Foltest: Kuşatma Ustası",
+      "strength": 0,
+      "faction": "Northern",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Kuşatma sırasındaki birliklerinizin gücünü iki katına çıkarır.",
+      "imagePath": "images/cards/northern/foltest_3.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "nr_l4",
+      "name": "Foltest: Çelik Dövülmüş",
+      "strength": 0,
+      "faction": "Northern",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Rakibin Kuşatma sırası gücü 10 veya üzerindeyse en güçlü birliğini yok eder.",
+      "imagePath": "images/cards/northern/foltest_4.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "nilf_l1",
+      "name": "Emhyr var Emreis: Haşmetli İmparator",
+      "strength": 0,
+      "faction": "Nilfgaard",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Rakibin elindeki 3 rastgele karta bakar.",
+      "imagePath": "images/cards/nilfgaard/emhyr_1.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "nilf_l2",
+      "name": "Emhyr var Emreis: Nilfgaard İmparatoru",
+      "strength": 0,
+      "faction": "Nilfgaard",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Rakibin Lider Yeteneğini iptal eder.",
+      "imagePath": "images/cards/nilfgaard/emhyr_2.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "nilf_l3",
+      "name": "Emhyr var Emreis: Acımasız",
+      "strength": 0,
+      "faction": "Nilfgaard",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Rakibin mezarlığından 1 kartı kendi elinize çeker.",
+      "imagePath": "images/cards/nilfgaard/emhyr_3.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "nilf_l4",
+      "name": "Emhyr var Emreis: Ak Alev",
+      "strength": 0,
+      "faction": "Nilfgaard",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Aktif olan tüm hava etkilerini iptal eder.",
+      "imagePath": "images/cards/nilfgaard/emhyr_4.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "mon_l1",
+      "name": "Eredin: Kızıl Süvarilerin Komutanı",
+      "strength": 0,
+      "faction": "Monsters",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Yakın Dövüş sırasındaki tüm birimlerinizin gücünü iki katına çıkarır.",
+      "imagePath": "images/cards/monsters/eredin_1.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "mon_l2",
+      "name": "Eredin: Ölüm Getiren",
+      "strength": 0,
+      "faction": "Monsters",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Mezarlığınızdan bir kartı tekrar elinize döndürür.",
+      "imagePath": "images/cards/monsters/eredin_2.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "mon_l3",
+      "name": "Eredin: Vahşi Av Kralı",
+      "strength": 0,
+      "faction": "Monsters",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Destenizden bir Dondurucu Soğuk kartı seçip hemen oynar.",
+      "imagePath": "images/cards/monsters/eredin_3.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "mon_l4",
+      "name": "Eredin: Dünyaların Yıkıcısı",
+      "strength": 0,
+      "faction": "Monsters",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "2 kart atıp destenizden istediğiniz 1 kartı elinize çeker.",
+      "imagePath": "images/cards/monsters/eredin_4.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "sco_l1",
+      "name": "Francesca Findabair: Safkan Elf",
+      "strength": 0,
+      "faction": "ScoiaTael",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Destenizden bir Dondurucu Soğuk kartı oynar.",
+      "imagePath": "images/cards/scoiatael/francesca_1.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "sco_l2",
+      "name": "Francesca Findabair: Vadi Papatyası",
+      "strength": 0,
+      "faction": "ScoiaTael",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Oyunun başında ekstra 1 kart çekmenizi sağlar.",
+      "imagePath": "images/cards/scoiatael/francesca_2.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "sco_l3",
+      "name": "Francesca Findabair: Güzel",
+      "strength": 0,
+      "faction": "ScoiaTael",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Menzilli sırasındaki birliklerinizin gücünü iki katına çıkarır.",
+      "imagePath": "images/cards/scoiatael/francesca_3.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "sco_l4",
+      "name": "Francesca Findabair: Dol Blathanna Kraliçesi",
+      "strength": 0,
+      "faction": "ScoiaTael",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Rakibin Yakın Dövüş sırası gücü 10 veya üzerindeyse en güçlü birliğini yok eder.",
+      "imagePath": "images/cards/scoiatael/francesca_4.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "ske_l1",
+      "name": "Kral Bran",
+      "strength": 0,
+      "faction": "Skellige",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Kötü hava koşullarından etkilenen birlikleriniz güçlerinin sadece yarısını kaybeder.",
+      "imagePath": "images/cards/skellige/bran_1.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
+      "id": "ske_l2",
+      "name": "Crach an Craite",
+      "strength": 0,
+      "faction": "Skellige",
+      "row": "None",
+      "ability": "LeaderAbility",
+      "description": "Her iki oyuncunun da mezarlığındaki kartları destelerine geri karıştırır.",
+      "imagePath": "images/cards/skellige/crach_1.png",
+      "cardType": "Leader",
+      "maxCopies": 1
+    },
+    {
       "id": "neu_01",
       "name": "Riviyalı Geralt",
       "strength": 15,
@@ -8,7 +224,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Dünyayı kurtarmak için gereken şey buysa, bırakalım ölsün daha iyi.",
-      "imagePath": "images/cards/neutral/geralt.png"
+      "imagePath": "images/cards/neutral/geralt.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "neu_02",
@@ -18,7 +236,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Kadim Kan'ın çocuğunun ne zaman doğacağını bilir misin? Dünya buz ve ateşle kaplandığında.",
-      "imagePath": "images/cards/neutral/ciri.png"
+      "imagePath": "images/cards/neutral/ciri.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "neu_03",
@@ -28,7 +248,9 @@
       "row": "Ranged",
       "ability": "Medic",
       "description": "Büyü, Kaos ve Düzen'in çocuğudur.",
-      "imagePath": "images/cards/neutral/yennefer.png"
+      "imagePath": "images/cards/neutral/yennefer.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "neu_04",
@@ -38,7 +260,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Kendi başımın çaresine bakabilirim. Benim için endişelenme.",
-      "imagePath": "images/cards/neutral/triss.png"
+      "imagePath": "images/cards/neutral/triss.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "neu_05",
@@ -48,7 +272,9 @@
       "row": "Melee",
       "ability": "None",
       "description": "Bir efsungun olacaksan sabırlı olmayı öğrenmelisin.",
-      "imagePath": "images/cards/neutral/vesemir.png"
+      "imagePath": "images/cards/neutral/vesemir.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "neu_06",
@@ -58,7 +284,9 @@
       "row": "Melee",
       "ability": "None",
       "description": "İçkini paylaşacak eski bir dostun olmadığı bir hayat, zerre kadar değerli değildir.",
-      "imagePath": "images/cards/neutral/zoltan.png"
+      "imagePath": "images/cards/neutral/zoltan.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "neu_07",
@@ -68,7 +296,9 @@
       "row": "Melee",
       "ability": "Spy",
       "description": "Hakkımda çok az şey biliyorsun. Ve bu böylesi için en iyisi.",
-      "imagePath": "images/cards/neutral/avallach.png"
+      "imagePath": "images/cards/neutral/avallach.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "neu_08",
@@ -78,7 +308,9 @@
       "row": "Melee",
       "ability": "CommandersHorn",
       "description": "Dandelion, sen bir alaycı, bir çapkın ve bir yalancısın... ama aynı zamanda en iyi dostumsun.",
-      "imagePath": "images/cards/neutral/dandelion.png"
+      "imagePath": "images/cards/neutral/dandelion.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "neu_09",
@@ -88,7 +320,9 @@
       "row": "Any",
       "ability": "Decoy",
       "description": "Sahadaki hedef kartla yer değiştirerek o kartı tekrar elinize döndürür.",
-      "imagePath": "images/cards/neutral/decoy.png"
+      "imagePath": "images/cards/neutral/decoy.png",
+      "cardType": "Special",
+      "maxCopies": 3
     },
     {
       "id": "neu_10",
@@ -98,7 +332,9 @@
       "row": "Any",
       "ability": "CommandersHorn",
       "description": "O sıradaki tüm birlik kartlarının gücünü iki katına çıkarır.",
-      "imagePath": "images/cards/neutral/commanders_horn.png"
+      "imagePath": "images/cards/neutral/commanders_horn.png",
+      "cardType": "Special",
+      "maxCopies": 3
     },
     {
       "id": "neu_11",
@@ -108,7 +344,9 @@
       "row": "Any",
       "ability": "Scorch",
       "description": "Savaş alanındaki en güçlü kartı veya kartları yok eder.",
-      "imagePath": "images/cards/neutral/scorch.png"
+      "imagePath": "images/cards/neutral/scorch.png",
+      "cardType": "Special",
+      "maxCopies": 3
     },
     {
       "id": "neu_12",
@@ -118,7 +356,9 @@
       "row": "Melee",
       "ability": "Weather",
       "description": "Her iki oyuncunun da Yakın Dövüş sırasındaki tüm kartlarının gücünü 1 yapar.",
-      "imagePath": "images/cards/neutral/biting_frost.png"
+      "imagePath": "images/cards/neutral/biting_frost.png",
+      "cardType": "Weather",
+      "maxCopies": 3
     },
     {
       "id": "neu_13",
@@ -128,7 +368,9 @@
       "row": "Ranged",
       "ability": "Weather",
       "description": "Her iki oyuncunun da Menzilli Dövüş sırasındaki tüm kartlarının gücünü 1 yapar.",
-      "imagePath": "images/cards/neutral/impenetrable_fog.png"
+      "imagePath": "images/cards/neutral/impenetrable_fog.png",
+      "cardType": "Weather",
+      "maxCopies": 3
     },
     {
       "id": "neu_14",
@@ -138,7 +380,9 @@
       "row": "Siege",
       "ability": "Weather",
       "description": "Her iki oyuncunun da Kuşatma sırasındaki tüm kartlarının gücünü 1 yapar.",
-      "imagePath": "images/cards/neutral/torrential_rain.png"
+      "imagePath": "images/cards/neutral/torrential_rain.png",
+      "cardType": "Weather",
+      "maxCopies": 3
     },
     {
       "id": "neu_15",
@@ -148,7 +392,9 @@
       "row": "Any",
       "ability": "WeatherClear",
       "description": "Savaş alanındaki tüm Hava Kartı etkilerini kaldırır.",
-      "imagePath": "images/cards/neutral/clear_weather.png"
+      "imagePath": "images/cards/neutral/clear_weather.png",
+      "cardType": "Weather",
+      "maxCopies": 3
     },
     {
       "id": "nr_01",
@@ -158,7 +404,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Temeryalı bir yurtsever... Bir pislik olsa bile.",
-      "imagePath": "images/cards/northern/vernon_roche.png"
+      "imagePath": "images/cards/northern/vernon_roche.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nr_02",
@@ -168,7 +416,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "O savaş büyüyle kazanılmadı. Kan ve çelikle kazanıldı.",
-      "imagePath": "images/cards/northern/john_natalis.png"
+      "imagePath": "images/cards/northern/john_natalis.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nr_03",
@@ -178,7 +428,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Uzun boylu, yakışıklı ve zengindi. Hepsinden önemlisi, çok zengindi.",
-      "imagePath": "images/cards/northern/esterad_thyssen.png"
+      "imagePath": "images/cards/northern/esterad_thyssen.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nr_04",
@@ -188,7 +440,9 @@
       "row": "Ranged",
       "ability": "Hero",
       "description": "Yalacılar Locası'nın sırrı yakında ortaya çıkacak.",
-      "imagePath": "images/cards/northern/philippa_eilhart.png"
+      "imagePath": "images/cards/northern/philippa_eilhart.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nr_05",
@@ -198,7 +452,9 @@
       "row": "Siege",
       "ability": "TightBond",
       "description": "Doldurmak için beş adam, nişan almak için üç adam ve ateşlemek için bir adam gerekir.",
-      "imagePath": "images/cards/northern/catapult.png"
+      "imagePath": "images/cards/northern/catapult.png",
+      "cardType": "Unit",
+      "maxCopies": 2
     },
     {
       "id": "nr_06",
@@ -208,7 +464,9 @@
       "row": "Siege",
       "ability": "None",
       "description": "Redanya'nın nihai kuşatma silahı.",
-      "imagePath": "images/cards/northern/trebuchet.png"
+      "imagePath": "images/cards/northern/trebuchet.png",
+      "cardType": "Unit",
+      "maxCopies": 2
     },
     {
       "id": "nr_07",
@@ -218,7 +476,9 @@
       "row": "Siege",
       "ability": "None",
       "description": "Ağır zırhları uzaktan delip geçmek için tasarlanmıştır.",
-      "imagePath": "images/cards/northern/ballista.png"
+      "imagePath": "images/cards/northern/ballista.png",
+      "cardType": "Unit",
+      "maxCopies": 2
     },
     {
       "id": "nr_08",
@@ -228,7 +488,9 @@
       "row": "Siege",
       "ability": "None",
       "description": "Akerdeşleri kale surlarının üzerine taşıyan yürüyen kale.",
-      "imagePath": "images/cards/northern/siege_tower.png"
+      "imagePath": "images/cards/northern/siege_tower.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nr_09",
@@ -238,7 +500,9 @@
       "row": "Melee",
       "ability": "None",
       "description": "Dizlerinin üzerinde yaşamaktansa ayakta ölmek yeğdir.",
-      "imagePath": "images/cards/northern/ves.png"
+      "imagePath": "images/cards/northern/ves.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nr_10",
@@ -248,7 +512,9 @@
       "row": "Melee",
       "ability": "None",
       "description": "Düzen için savaşıyoruz! Barış için savaşıyoruz!",
-      "imagePath": "images/cards/northern/siegfried.png"
+      "imagePath": "images/cards/northern/siegfried.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nr_11",
@@ -258,7 +524,9 @@
       "row": "Melee",
       "ability": "Spy",
       "description": "Kılıcıyla değil, ağzıyla savaşır.",
-      "imagePath": "images/cards/northern/prince_stennis.png"
+      "imagePath": "images/cards/northern/prince_stennis.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nr_12",
@@ -268,7 +536,9 @@
       "row": "Melee",
       "ability": "Spy",
       "description": "Bilgi, dünyadaki en değerli para birimidir.",
-      "imagePath": "images/cards/northern/dijkstra.png"
+      "imagePath": "images/cards/northern/dijkstra.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nr_13",
@@ -278,7 +548,9 @@
       "row": "Siege",
       "ability": "Spy",
       "description": "Al gülüm ver gülüm, dostum.",
-      "imagePath": "images/cards/northern/thaler.png"
+      "imagePath": "images/cards/northern/thaler.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nr_14",
@@ -288,7 +560,9 @@
       "row": "Siege",
       "ability": "Medic",
       "description": "Yaralarını sarın ve hemen cepheye geri gönderin!",
-      "imagePath": "images/cards/northern/dun_banner_medic.png"
+      "imagePath": "images/cards/northern/dun_banner_medic.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nr_15",
@@ -298,7 +572,9 @@
       "row": "Melee",
       "ability": "TightBond",
       "description": "Roche'un peşinden cehennemin dibine bile giderim.",
-      "imagePath": "images/cards/northern/blue_stripes_commando.png"
+      "imagePath": "images/cards/northern/blue_stripes_commando.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "nr_16",
@@ -308,7 +584,9 @@
       "row": "Ranged",
       "ability": "TightBond",
       "description": "Biz ejderha avlarız. Bir itirazın mı var?",
-      "imagePath": "images/cards/northern/crinfrid_reavers.png"
+      "imagePath": "images/cards/northern/crinfrid_reavers.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "nr_17",
@@ -318,7 +596,9 @@
       "row": "Melee",
       "ability": "TightBond",
       "description": "Çizme verirler diye orduya katılmıştım.",
-      "imagePath": "images/cards/northern/poor_fucking_infantry.png"
+      "imagePath": "images/cards/northern/poor_fucking_infantry.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "nr_18",
@@ -328,7 +608,9 @@
       "row": "Siege",
       "ability": "MoraleBoost",
       "description": "Üç derece sola nişan alın!",
-      "imagePath": "images/cards/northern/kaedweni_siege_expert.png"
+      "imagePath": "images/cards/northern/kaedweni_siege_expert.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "nilf_01",
@@ -338,7 +620,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Krallar da herkes gibi ölür.",
-      "imagePath": "images/cards/nilfgaard/letho.png"
+      "imagePath": "images/cards/nilfgaard/letho.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nilf_02",
@@ -348,7 +632,9 @@
       "row": "Melee",
       "ability": "Medic",
       "description": "İleri, İmparator için!",
-      "imagePath": "images/cards/nilfgaard/menno_coehoorn.png"
+      "imagePath": "images/cards/nilfgaard/menno_coehoorn.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nilf_03",
@@ -358,7 +644,9 @@
       "row": "Siege",
       "ability": "Hero",
       "description": "Taktik, disiplin ve zafer.",
-      "imagePath": "images/cards/nilfgaard/morvran_voorhis.png"
+      "imagePath": "images/cards/nilfgaard/morvran_voorhis.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nilf_04",
@@ -368,7 +656,9 @@
       "row": "Ranged",
       "ability": "Hero",
       "description": "Alba süvarileri! Hattı koruyun!",
-      "imagePath": "images/cards/nilfgaard/tibor_eggebracht.png"
+      "imagePath": "images/cards/nilfgaard/tibor_eggebracht.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "nilf_05",
@@ -378,7 +668,9 @@
       "row": "Ranged",
       "ability": "None",
       "description": "İmparatorluk öncü birliğinin seçkin nişancıları.",
-      "imagePath": "images/cards/nilfgaard/black_infantry_archer.png"
+      "imagePath": "images/cards/nilfgaard/black_infantry_archer.png",
+      "cardType": "Unit",
+      "maxCopies": 2
     },
     {
       "id": "nilf_06",
@@ -388,7 +680,9 @@
       "row": "Siege",
       "ability": "None",
       "description": "Düşman tahkimatlarının üzerine alev yağdırır.",
-      "imagePath": "images/cards/nilfgaard/heavy_fire_scorpion.png"
+      "imagePath": "images/cards/nilfgaard/heavy_fire_scorpion.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nilf_07",
@@ -398,7 +692,9 @@
       "row": "Melee",
       "ability": "Spy",
       "description": "Her insanın bir fiyatı vardır. Bunu bulmak ise benim uzmanlığım.",
-      "imagePath": "images/cards/nilfgaard/stefan_skellen.png"
+      "imagePath": "images/cards/nilfgaard/stefan_skellen.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nilf_08",
@@ -408,7 +704,9 @@
       "row": "Melee",
       "ability": "Spy",
       "description": "Diplomasi, savaşın farklı bir yolla sürdürülmesidir.",
-      "imagePath": "images/cards/nilfgaard/shilard.png"
+      "imagePath": "images/cards/nilfgaard/shilard.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nilf_09",
@@ -418,7 +716,9 @@
       "row": "Melee",
       "ability": "Spy",
       "description": "İmparatorluk istihbaratının başındaki isim.",
-      "imagePath": "images/cards/nilfgaard/vattier.png"
+      "imagePath": "images/cards/nilfgaard/vattier.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "nilf_10",
@@ -428,7 +728,9 @@
       "row": "Melee",
       "ability": "TightBond",
       "description": "İmparator Emhyr'in kişisel koruma birliği.",
-      "imagePath": "images/cards/nilfgaard/impera_brigade.png"
+      "imagePath": "images/cards/nilfgaard/impera_brigade.png",
+      "cardType": "Unit",
+      "maxCopies": 4
     },
     {
       "id": "nilf_11",
@@ -438,7 +740,9 @@
       "row": "Melee",
       "ability": "TightBond",
       "description": "İmparatorluğun korkusuz hücum süvarileri.",
-      "imagePath": "images/cards/nilfgaard/nausicaa_cavalry.png"
+      "imagePath": "images/cards/nilfgaard/nausicaa_cavalry.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "nilf_12",
@@ -448,7 +752,9 @@
       "row": "Siege",
       "ability": "Medic",
       "description": "Hasar görmüş kuşatma silahlarını tekrar çalışır hale getirir.",
-      "imagePath": "images/cards/nilfgaard/siege_technician.png"
+      "imagePath": "images/cards/nilfgaard/siege_technician.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_01",
@@ -458,7 +764,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Savaştan ve nefretten doğmuş olan intikam ruhu.",
-      "imagePath": "images/cards/monsters/draug.png"
+      "imagePath": "images/cards/monsters/draug.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "mon_02",
@@ -468,7 +776,9 @@
       "row": "Melee",
       "ability": "Hero",
       "description": "Vahşi Av'ın acımasız ve vahşi generali.",
-      "imagePath": "images/cards/monsters/imlerith.png"
+      "imagePath": "images/cards/monsters/imlerith.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "mon_03",
@@ -478,17 +788,21 @@
       "row": "Ranged",
       "ability": "Hero",
       "description": "Kurtları ve kargaları yöneten kadim orman koruyucusu.",
-      "imagePath": "images/cards/monsters/leshen.png"
+      "imagePath": "images/cards/monsters/leshen.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "mon_04",
       "name": "Kayran",
       "strength": 8,
       "faction": "Monsters",
-      "row": "Melee",
+      "row": "Agile",
       "ability": "MoraleBoost",
       "description": "Keskin dokunaçlara sahip devasa nehiri canavarı.",
-      "imagePath": "images/cards/monsters/kayran.png"
+      "imagePath": "images/cards/monsters/kayran.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "mon_05",
@@ -498,7 +812,9 @@
       "row": "Siege",
       "ability": "Muster",
       "description": "Küçük örümcekmsileri çağıran devasa böcek canavar.",
-      "imagePath": "images/cards/monsters/arachas_behemoth.png"
+      "imagePath": "images/cards/monsters/arachas_behemoth.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_06",
@@ -508,7 +824,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "EğriAğaç Bataklığı'nın üç yetim yiyen kocakarısından biri.",
-      "imagePath": "images/cards/monsters/crone_brewess.png"
+      "imagePath": "images/cards/monsters/crone_brewess.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_07",
@@ -518,7 +836,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "İnsan saçlarından kara büyü halıları dokur.",
-      "imagePath": "images/cards/monsters/crone_weavess.png"
+      "imagePath": "images/cards/monsters/crone_weavess.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_08",
@@ -528,7 +848,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Velen bataklıklarında fısıldanan her şeyi duyar.",
-      "imagePath": "images/cards/monsters/crone_whispess.png"
+      "imagePath": "images/cards/monsters/crone_whispess.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_09",
@@ -538,7 +860,9 @@
       "row": "Siege",
       "ability": "None",
       "description": "Taştan ve büyüden yapılmış, neredeyse yok edilemez bir yaratık.",
-      "imagePath": "images/cards/monsters/earth_elemental.png"
+      "imagePath": "images/cards/monsters/earth_elemental.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_10",
@@ -548,7 +872,9 @@
       "row": "Melee",
       "ability": "None",
       "description": "Avını hipnotize edebilen devasa boynuzlu canavar.",
-      "imagePath": "images/cards/monsters/fiend.png"
+      "imagePath": "images/cards/monsters/fiend.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_11",
@@ -558,7 +884,9 @@
       "row": "Siege",
       "ability": "None",
       "description": "Yıkıcı bir formda bağlamış saf büyü alevi.",
-      "imagePath": "images/cards/monsters/fire_elemental.png"
+      "imagePath": "images/cards/monsters/fire_elemental.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_12",
@@ -568,7 +896,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Jilet gibi pençelere sahip acımasız bir üst düzey vampir.",
-      "imagePath": "images/cards/monsters/vampire_katakan.png"
+      "imagePath": "images/cards/monsters/vampire_katakan.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_13",
@@ -578,7 +908,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Yarasa benzeri korkunç bir kan emici.",
-      "imagePath": "images/cards/monsters/vampire_ekimmara.png"
+      "imagePath": "images/cards/monsters/vampire_ekimmara.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_14",
@@ -588,7 +920,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Beslenme içgüdüsüyle hareket eden alt düzey vampir.",
-      "imagePath": "images/cards/monsters/vampire_fleder.png"
+      "imagePath": "images/cards/monsters/vampire_fleder.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_15",
@@ -598,7 +932,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Zihinsel şok dalgaları yayan korkunç bir vampir türü.",
-      "imagePath": "images/cards/monsters/vampire_garkain.png"
+      "imagePath": "images/cards/monsters/vampire_garkain.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_16",
@@ -608,7 +944,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Çığlıklarıyla saldıran baştan çıkarıcı ama ölümcül bir vampir.",
-      "imagePath": "images/cards/monsters/vampire_bruxa.png"
+      "imagePath": "images/cards/monsters/vampire_bruxa.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "mon_17",
@@ -618,7 +956,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Savaş alanlarındaki cesetlerle beslenen leşçiller.",
-      "imagePath": "images/cards/monsters/ghoul.png"
+      "imagePath": "images/cards/monsters/ghoul.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "mon_18",
@@ -628,7 +968,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Sürüler halinde saldıran küçük, saldırgan yaratıklar.",
-      "imagePath": "images/cards/monsters/nekker.png"
+      "imagePath": "images/cards/monsters/nekker.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "sco_01",
@@ -638,7 +980,9 @@
       "row": "Ranged",
       "ability": "Hero",
       "description": "Brokilon Kraliçesi, orman perilerinin koruyucusu.",
-      "imagePath": "images/cards/scoiatael/eithne.png"
+      "imagePath": "images/cards/scoiatael/eithne.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "sco_02",
@@ -648,7 +992,9 @@
       "row": "Ranged",
       "ability": "Hero",
       "description": "Aedirn Bakiresi, özgür halkların lideri.",
-      "imagePath": "images/cards/scoiatael/saskia.png"
+      "imagePath": "images/cards/scoiatael/saskia.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "sco_03",
@@ -658,7 +1004,9 @@
       "row": "Ranged",
       "ability": "Hero",
       "description": "Scoia'tael elf isyancılarının komutanı.",
-      "imagePath": "images/cards/scoiatael/iorveth.png"
+      "imagePath": "images/cards/scoiatael/iorveth.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "sco_04",
@@ -668,7 +1016,9 @@
       "row": "Melee",
       "ability": "MoraleBoost",
       "description": "Demir Kurt olarak bilinen efsanevi Scoia'tael lideri.",
-      "imagePath": "images/cards/scoiatael/isengrim.png"
+      "imagePath": "images/cards/scoiatael/isengrim.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "sco_05",
@@ -678,7 +1028,9 @@
       "row": "Melee",
       "ability": "None",
       "description": "Mahakam'a hizmet eden dürüst bir cüce savaşçı.",
-      "imagePath": "images/cards/scoiatael/dennis_cranmer.png"
+      "imagePath": "images/cards/scoiatael/dennis_cranmer.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "sco_06",
@@ -688,7 +1040,9 @@
       "row": "Ranged",
       "ability": "MoraleBoost",
       "description": "Brokilon ormanlarının usta okçusu.",
-      "imagePath": "images/cards/scoiatael/milva.png"
+      "imagePath": "images/cards/scoiatael/milva.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "sco_07",
@@ -698,37 +1052,45 @@
       "row": "Ranged",
       "ability": "None",
       "description": "Mavi Dağlar'ın bilge elf bilgini.",
-      "imagePath": "images/cards/scoiatael/ida_emean.png"
+      "imagePath": "images/cards/scoiatael/ida_emean.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "sco_08",
       "name": "Filavandrel aep Feainn",
       "strength": 6,
       "faction": "ScoiaTael",
-      "row": "Melee",
+      "row": "Agile",
       "ability": "None",
       "description": "Dağlarda sürgün hayatı yaşayan gururlu elf soylusu.",
-      "imagePath": "images/cards/scoiatael/filavandrel.png"
+      "imagePath": "images/cards/scoiatael/filavandrel.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "sco_09",
       "name": "Yaevinn",
       "strength": 6,
       "faction": "ScoiaTael",
-      "row": "Melee",
+      "row": "Agile",
       "ability": "None",
       "description": "Scoia'tael çetelerinin merhametsiz lideri.",
-      "imagePath": "images/cards/scoiatael/yaevinn.png"
+      "imagePath": "images/cards/scoiatael/yaevinn.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "sco_10",
       "name": "Barclay Els",
       "strength": 6,
       "faction": "ScoiaTael",
-      "row": "Melee",
+      "row": "Agile",
       "ability": "None",
       "description": "Gazi cüce komutanı.",
-      "imagePath": "images/cards/scoiatael/barclay_els.png"
+      "imagePath": "images/cards/scoiatael/barclay_els.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "sco_11",
@@ -738,7 +1100,9 @@
       "row": "Ranged",
       "ability": "Medic",
       "description": "Savaş alanındaki yaralı isyancıları iyileştirir.",
-      "imagePath": "images/cards/scoiatael/havekar_nurse.png"
+      "imagePath": "images/cards/scoiatael/havekar_nurse.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "sco_12",
@@ -748,7 +1112,9 @@
       "row": "Ranged",
       "ability": "Muster",
       "description": "Hızlı vur-kaç taktikleri uygulayan çevik elf savaşçıları.",
-      "imagePath": "images/cards/scoiatael/elven_skirmisher.png"
+      "imagePath": "images/cards/scoiatael/elven_skirmisher.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "ske_01",
@@ -758,7 +1124,9 @@
       "row": "Melee",
       "ability": "Muster",
       "description": "Crach'in korkusuz kızı, Kalkan Bakireleri'ni yanına çağırır.",
-      "imagePath": "images/cards/skellige/cerys.png"
+      "imagePath": "images/cards/skellige/cerys.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "ske_02",
@@ -768,7 +1136,9 @@
       "row": "Ranged",
       "ability": "Mushroom",
       "description": "Skellige Rahibi, sahadaki tüm Berserkerleri Ayıya dönüştürür.",
-      "imagePath": "images/cards/skellige/ermion.png"
+      "imagePath": "images/cards/skellige/ermion.png",
+      "cardType": "Hero",
+      "maxCopies": 1
     },
     {
       "id": "ske_03",
@@ -778,7 +1148,9 @@
       "row": "Melee",
       "ability": "TransformOnDestroy",
       "description": "Yok edildiğinde sahaya Hemdall (11 Gücünde Kahraman) çağıran altın horoz.",
-      "imagePath": "images/cards/skellige/kambi.png"
+      "imagePath": "images/cards/skellige/kambi.png",
+      "cardType": "Unit",
+      "maxCopies": 1
     },
     {
       "id": "ske_04",
@@ -788,7 +1160,9 @@
       "row": "Melee",
       "ability": "BerserkerTransform",
       "description": "Mantar büyüsüyle güçlü bir Ayıya (14 Güç) dönüşebilen vahşi savaşçı.",
-      "imagePath": "images/cards/skellige/berserker.png"
+      "imagePath": "images/cards/skellige/berserker.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "ske_05",
@@ -798,7 +1172,9 @@
       "row": "Melee",
       "ability": "TightBond",
       "description": "Omuz omuza savaşan seçkin kadın savaşçılar.",
-      "imagePath": "images/cards/skellige/shield_maiden.png"
+      "imagePath": "images/cards/skellige/shield_maiden.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "ske_06",
@@ -808,7 +1184,9 @@
       "row": "Siege",
       "ability": "TightBond",
       "description": "Skellige denizlerine hükmeden korkunç kadırga.",
-      "imagePath": "images/cards/skellige/an_craite_warship.png"
+      "imagePath": "images/cards/skellige/an_craite_warship.png",
+      "cardType": "Unit",
+      "maxCopies": 3
     },
     {
       "id": "ske_07",
@@ -818,7 +1196,9 @@
       "row": "Any",
       "ability": "Mushroom",
       "description": "Berserker birimlerinin dönüşümünü tetikleyen kutsal mantar.",
-      "imagePath": "images/cards/skellige/mardroeme.png"
+      "imagePath": "images/cards/skellige/mardroeme.png",
+      "cardType": "Special",
+      "maxCopies": 3
     }
   ]
 }

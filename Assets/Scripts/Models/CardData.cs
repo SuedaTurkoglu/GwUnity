@@ -9,7 +9,8 @@ namespace Gwent.Models
         Unit,
         Hero,
         Special,
-        Weather
+        Weather,
+        Leader
     }
 
     [Serializable]
@@ -19,18 +20,25 @@ namespace Gwent.Models
         public string name;
         public int strength;
         public string faction; // "Northern", "Nilfgaard", "ScoiaTael", "Monsters", "Skellige", "Neutral"
-        public string row; // "Melee", "Ranged", "Siege", "Any"
-        public string ability; // "None", "Hero", "Spy", "Medic", "Muster", "TightBond", "Morale", "Scorch", "Decoy", "Horn"
+        public string row; // "Melee", "Ranged", "Siege", "Agile", "Any"
+        public string ability; // "None", "Hero", "Spy", "Medic", "Muster", "TightBond", "MoraleBoost", "Scorch", "Decoy", "CommandersHorn", "ClearWeather"
         public string description;
         public string imagePath;
 
-        // YENİ: Gwent Kuralları için tip belirleyici
+        // --- GWENT İÇİN EKLENEN ALANLAR ---
+        
         public CardType cardType = CardType.Unit;
+
+        // Kartın Agile (Esnek) olup olmadığını kontrol eden yardımcı mülk
+        public bool IsAgile => row == "Agile";
+
+        // Oyuncunun destesine ekleyebileceği maksimum kopya sayısı (Örn: 3x Sefil Piyade)
+        public int maxCopies = 1;
     }
 
     [Serializable]
     public class CardDatabase
     {
-        public List<CardData> cards;
+        public List<CardData> cards = new List<CardData>();
     }
 }
