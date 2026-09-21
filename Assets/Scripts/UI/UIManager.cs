@@ -22,6 +22,16 @@ namespace Gwent.UI
         public Transform p2RangedContainer;
         public Transform p2SiegeContainer;
 
+        [Header("Leaders & Deck")]
+        public UnityEngine.UI.Image myLeaderImage;
+        public UnityEngine.UI.Image opponentLeaderImage;
+        public GameObject myLeaderUsedOverlay;
+        public GameObject opponentLeaderUsedOverlay;
+        public TextMeshProUGUI remainingDeckText;
+        public GameObject deckPopupPanel;
+        public Transform deckGridContainer;
+
+
         [Header("Player Hand")]
         public Transform handContainer;
         public GameObject cardPrefab;
@@ -45,6 +55,23 @@ namespace Gwent.UI
             else
             {
                 Destroy(gameObject);
+                return;
+            }
+        }
+
+        void Start()
+        {
+            // Deste textine tıklama özelliğini kodla ekle
+            if (remainingDeckText != null)
+            {
+                Button btn = remainingDeckText.GetComponent<Button>();
+                if (btn == null)
+                {
+                    btn = remainingDeckText.gameObject.AddComponent<Button>();
+                }
+                btn.onClick.AddListener(() => {
+                    OpenDeckPopup(Core.GameManager.Instance.CurrentState);
+                });
             }
         }
 
@@ -69,6 +96,8 @@ namespace Gwent.UI
             UpdateRowUI(p2SiegeContainer, state.p2Siege);
 
             UpdateLocalHand(state);
+            UpdateLeaderUI(state);
+            UpdateDeckCount(state);
         }
 
         private int GetLocalLives(GameState state)
@@ -236,6 +265,85 @@ namespace Gwent.UI
             yield return new WaitForSeconds(delay);
             feedbackText.text = "";
             _feedbackCoroutine = null;
+        }
+
+        private void UpdateLeaderUI(GameState state)
+        {
+            if (state == null) return;
+
+            string localId = Core.GameManager.Instance.LocalPlayerId;
+            string myLeaderId = (localId == state.player1Id) ? state.p1LeaderId : state.p2LeaderId;
+            string oppLeaderId = (localId == state.player1Id) ? state.p2LeaderId : state.p1LeaderId;
+            bool myAbilityUsed = (localId == state.player1Id) ? state.p1LeaderAbilityUsed : state.p2LeaderAbilityUsed;
+            bool oppAbilityUsed = (localId == state.player1Id) ? state.p2LeaderAbilityUsed : state.p1LeaderAbilityUsed;
+
+            if (myLeaderImage != null && !string.IsNullOrEmpty(myLeaderId))
+            {
+                var card = CardManager.Instance.GetCardById(myLeaderId);
+                if (card != null)
+                {
+                    // CardData.imagePath kullanılıyor, ancak Image component'ine atama yapmak için
+                    // CardView'dan veya bir asset loader'dan sprite alınmalı.
+                    // Geçici olarak log basıyoruz, CardView'daki sprite atama mantığına göre güncellenmeli.
+                    Debug.Log($"My Leader Sprite Path: {card.imagePath}");
+                }
+            }
+
+            if (opponentLeaderImage != null && !string.IsNullOrEmpty(oppLeaderId))
+            {
+                var card = CardManager.Instance.GetCardById(oppLeaderId);
+                if (card != null)
+                {
+                    Debug.Log($"Opponent Leader Sprite Path: {card.imagePath}");
+                }
+            }
+
+            if (myLeaderUsedOverlay != null)
+            {
+                myLeaderUsedOverlay.SetActive(myAbilityUsed);
+            }
+
+            if (opponentLeaderUsedOverlay != null)
+            {
+                opponentLeaderUsedOverlay.SetActive(oppAbilityUsed);
+            }
+        }
+
+        private void UpdateDeckCount(GameState state)
+        {
+            if (state == null || remainingDeckText == null) return;
+
+            string localId = Core.GameManager.Instance.LocalPlayerId;
+            int count = (localId == state.player1Id) ? state.p1Deck.Count : state.p2Deck.Count;
+            remainingDeckText.text = $"Kalan Deste: {count}";
+        }
+
+        public void OpenDeckPopup(GameState state)
+        {
+            if (state == null || deckPopupPanel == null || deckGridContainer == null) return;
+
+            deckPopupPanel.SetActive(true);
+
+            // Temizle
+            foreach (Transform child in deckGridContainer) Destroy(child.gameObject);
+
+            string localId = Core.GameManager.Instance.LocalPlayerId;
+            List<string> localDeck = (localId == state.player1Id) ? state.p1Deck : state.p2Deck;
+
+            foreach (var id in localDeck)
+            {
+                var cardData = CardManager.Instance.GetCardById(id);
+                if (cardData == null) continue;
+
+                GameObject cardObj = Instantiate(cardPrefab, deckGridContainer);
+                var cardView = cardObj.GetComponent<CardView>();
+                if (cardView != null) cardView.Setup(cardData);
+            }
+        }
+
+        public void CloseDeckPopup()
+        {
+            if (deckPopupPanel != null) deckPopupPanel.SetActive(false);
         }
     }
 }

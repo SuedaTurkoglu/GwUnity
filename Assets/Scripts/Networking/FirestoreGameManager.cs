@@ -101,21 +101,31 @@ namespace Gwent.Networking
 
         private async Task SetupAndDealCards(GameState state)
         {
-            // Oyuncu 1'in destesini yükle
+            // Oyuncu 1'in destesini ve liderini yükle
             var p1Profile = await UserProfileManager.Instance.LoadDeck(state.player1Id);
-            List<string> p1Deck = (p1Profile.deck != null && p1Profile.deck.Count > 0)
-                                  ? p1Profile.deck
-                                  : GenerateRandomDeck(state.player1Faction);
-            state.p1Hand = ShuffleAndPick(p1Deck, 10);
+            state.p1LeaderId = p1Profile.leaderId;
+            List<string> p1FullDeck = (p1Profile.deck != null && p1Profile.deck.Count > 0)
+                                      ? p1Profile.deck
+                                      : GenerateRandomDeck(state.player1Faction);
 
-            // Oyuncu 2'nin destesini yükle
+            // Elini dağıt ve kalan desteyi state'e kaydet
+            var p1Draw = DrawCards(p1FullDeck, 10);
+            state.p1Hand = p1Draw.picked;
+            state.p1Deck = p1Draw.remaining;
+
+            // Oyuncu 2'nin destesini ve liderini yükle
             var p2Profile = await UserProfileManager.Instance.LoadDeck(state.player2Id);
-            List<string> p2Deck = (p2Profile.deck != null && p2Profile.deck.Count > 0)
-                                  ? p2Profile.deck
-                                  : GenerateRandomDeck(state.player2Faction);
-            state.p2Hand = ShuffleAndPick(p2Deck, 10);
+            state.p2LeaderId = p2Profile.leaderId;
+            List<string> p2FullDeck = (p2Profile.deck != null && p2Profile.deck.Count > 0)
+                                      ? p2Profile.deck
+                                      : GenerateRandomDeck(state.player2Faction);
 
-            Debug.Log($"Cards dealt. P1: {p1Deck.Count}, P2: {p2Deck.Count}");
+            // Elini dağıt ve kalan desteyi state'e kaydet
+            var p2Draw = DrawCards(p2FullDeck, 10);
+            state.p2Hand = p2Draw.picked;
+            state.p2Deck = p2Draw.remaining;
+
+            Debug.Log($"Cards dealt. P1: {state.p1Deck.Count} left, P2: {state.p2Deck.Count} left");
         }
 
         private List<string> GenerateRandomDeck(string faction)
@@ -125,18 +135,23 @@ namespace Gwent.Networking
             return pool.Select(c => c.id).OrderBy(x => UnityEngine.Random.value).Take(30).ToList();
         }
 
+        private (List<string> picked, List<string> remaining) DrawCards(List<string> deck, int count)
+        {
+            List<string> picked = new List<string>();
+            List<string> remaining = new List<string>(deck);
+
+            for (int i = 0; i < count && remaining.Count > 0; i++)
+            {
+                int index = UnityEngine.Random.Range(0, remaining.Count);
+                picked.Add(remaining[index]);
+                remaining.RemoveAt(index);
+            }
+            return (picked, remaining);
+        }
+
         private List<string> ShuffleAndPick(List<string> cards, int count)
         {
-            List<string> ids = new List<string>();
-            List<string> pool = new List<string>(cards);
-
-            for (int i = 0; i < count && pool.Count > 0; i++)
-            {
-                int index = UnityEngine.Random.Range(0, pool.Count);
-                ids.Add(pool[index]);
-                pool.RemoveAt(index);
-            }
-            return ids;
+            return DrawCards(cards, count).picked;
         }
 
         public async Task PushMove(string cardId, string rowType)
@@ -156,8 +171,9 @@ namespace Gwent.Networking
             Core.AbilityManager.ResolveOnPlayAbility(state, cardData, isPlayer1, rowType);
 
             bool isPermanentUnit = cardData.cardType == CardType.Unit || cardData.cardType == CardType.Hero;
-            if (cardData.ability == "Scorch" || cardData.ability == "Medic" || cardData.ability == "Horn" || cardData.ability == "Decoy")
+            if (cardData.ability == "Scorch" || cardData.ability == "Medic" || cardData.ability == "Horn" || cardData.ability == "Decoy" || cardData.ability == "ClearWeather")
                 isPermanentUnit = false;
+
 
             if (isPermanentUnit)
             {

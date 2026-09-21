@@ -69,6 +69,12 @@ namespace Gwent.Models
 
         [FirestoreProperty] public bool p1LeaderAbilityUsed { get; set; } = false;
         [FirestoreProperty] public bool p2LeaderAbilityUsed { get; set; } = false;
+
+        // Lider ve Deste Takibi (YENİ)
+        [FirestoreProperty] public string p1LeaderId { get; set; }
+        [FirestoreProperty] public string p2LeaderId { get; set; }
+        [FirestoreProperty] public List<string> p1Deck { get; set; } = new List<string>();
+        [FirestoreProperty] public List<string> p2Deck { get; set; } = new List<string>();
     }
 
     public enum GameStatus
