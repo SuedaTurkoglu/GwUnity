@@ -89,7 +89,7 @@ namespace Gwent.UI
                 if (btn != null)
                 {
                     string id = card.id;
-                    btn.onClick.AddListener(() => ToggleCardInDeck(id));
+                    btn.onClick.AddListener(() => AddCardToDeck(id));
                 }
             }
         }
@@ -122,58 +122,75 @@ namespace Gwent.UI
             }
         }
 
-        private void ToggleCardInDeck(string cardId)
+        /// <summary>
+        /// Sol paneldeki (Havuz) bir karta tıklandığında desteye 1 adet ekler.
+        /// </summary>
+        public void AddCardToDeck(string cardId)
         {
             var card = Core.CardManager.Instance.GetCardById(cardId);
             if (card == null) return;
 
-            if (currentDeck.Contains(cardId))
-            {
-                currentDeck.Remove(cardId);
-            }
-            else
-            {
-                // --- GWENT RESMİ DESSA OLUŞTURMA KURALLARI ---
+            // --- GWENT DESTE OLUŞTURMA KURALLARI ---
 
-                // KURAL 1: Tek Faksiyon Kuralı (Neutral Kartlar İstisnadır)
-                string activeDeckFaction = GetCurrentDeckFaction();
-                
-                if (activeDeckFaction != "Neutral" && card.faction != "Neutral" && card.faction != activeDeckFaction)
+            // 1. Faksiyon Kontrolü
+            string activeDeckFaction = GetCurrentDeckFaction();
+            if (activeDeckFaction != "Neutral" && card.faction != "Neutral" && card.faction != activeDeckFaction)
+            {
+                UI.UIManager.Instance.ShowFeedback($"Sadece {activeDeckFaction} faksiyonuna ait kartlar ekleyebilirsiniz!");
+                return;
+            }
+
+            // Seçili Lider varsa faksiyon uyumu denetimi
+            if (!string.IsNullOrEmpty(selectedLeaderId))
+            {
+                var leaderCard = Core.CardManager.Instance.GetCardById(selectedLeaderId);
+                if (leaderCard != null && card.faction != "Neutral" && card.faction != leaderCard.faction)
                 {
-                    UI.UIManager.Instance.ShowFeedback($"Sadece {activeDeckFaction} faksiyonuna ait kartlar ekleyebilirsiniz!");
+                    UI.UIManager.Instance.ShowFeedback($"Seçilen Lider ({leaderCard.faction}) ile kart faksiyonu uyuşmuyor!");
                     return;
                 }
-
-                // Seçili Lider varsa, liderin faksiyonuna uymayan kart eklenemez
-                if (!string.IsNullOrEmpty(selectedLeaderId))
-                {
-                    var leaderCard = Core.CardManager.Instance.GetCardById(selectedLeaderId);
-                    if (leaderCard != null && card.faction != "Neutral" && card.faction != leaderCard.faction)
-                    {
-                        UI.UIManager.Instance.ShowFeedback($"Seçilen Lider ({leaderCard.faction}) ile kart faksiyonu uyuşmuyor!");
-                        return;
-                    }
-                }
-
-                // KURAL 2: Özel Kart Limiti (Maksimum 10)
-                if (card.Type == CardType.Special || card.Type == CardType.Weather)
-                {
-                    int specialCount = currentDeck.Count(id => {
-                        var c = Core.CardManager.Instance.GetCardById(id);
-                        return c != null && (c.Type == CardType.Special || c.Type == CardType.Weather);
-                    });
-
-                    if (specialCount >= 10)
-                    {
-                        UI.UIManager.Instance.ShowFeedback("En fazla 10 Özel Kart ekleyebilirsiniz!");
-                        return;
-                    }
-                }
-
-                currentDeck.Add(cardId);
             }
 
+            // 2. Maksimum Kopya Sınırı Kontrolü (JSON'dan gelen maxCopies değerine göre)
+            int currentCopyCount = currentDeck.Count(id => id == cardId);
+            int allowedMaxCopies = card.maxCopies > 0 ? card.maxCopies : 1;
+
+            if (currentCopyCount >= allowedMaxCopies)
+            {
+                UI.UIManager.Instance.ShowFeedback($"Bu karttan destenize en fazla {allowedMaxCopies} adet ekleyebilirsiniz!");
+                return;
+            }
+
+            // 3. Özel Kart Limiti Kontrolü (Max 10)
+            if (card.Type == CardType.Special || card.Type == CardType.Weather)
+            {
+                int specialCount = currentDeck.Count(id => {
+                    var c = Core.CardManager.Instance.GetCardById(id);
+                    return c != null && (c.Type == CardType.Special || c.Type == CardType.Weather);
+                });
+
+                if (specialCount >= 10)
+                {
+                    UI.UIManager.Instance.ShowFeedback("En fazla 10 Özel Kart ekleyebilirsiniz!");
+                    return;
+                }
+            }
+
+            // Şartlar uygunsa karta 1 kopya daha ekle
+            currentDeck.Add(cardId);
             RefreshSelectedCards();
+        }
+
+        /// <summary>
+        /// Sağ paneldeki (Seçilenler) bir karta tıklandığında desteden 1 adet eksiltir.
+        /// </summary>
+        public void RemoveCardFromDeck(string cardId)
+        {
+            if (currentDeck.Contains(cardId))
+            {
+                currentDeck.Remove(cardId); // Yalnızca ilk karşılaşılan 1 adedi listeden çıkarır
+                RefreshSelectedCards();
+            }
         }
 
         public void RefreshSelectedCards()
@@ -191,7 +208,7 @@ namespace Gwent.UI
                 if (btn != null)
                 {
                     string capturedId = id;
-                    btn.onClick.AddListener(() => ToggleCardInDeck(capturedId));
+                    btn.onClick.AddListener(() => RemoveCardFromDeck(capturedId));
                 }
             }
 
