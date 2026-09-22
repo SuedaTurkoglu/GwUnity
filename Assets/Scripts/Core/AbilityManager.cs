@@ -91,6 +91,12 @@ namespace Gwent.Core
         {
             if (playedCard == null) return;
 
+            if (playedCard.Type == CardType.Leader || playedCard.ability == "LeaderAbility")
+            {
+                ResolveLeaderAbility(state, playedCard, isPlayer1);
+                return;
+            }
+
             switch (playedCard.ability)
             {
                 case "Horn":
@@ -129,13 +135,209 @@ namespace Gwent.Core
                     break;
 
                 default:
-                    if (playedCard.cardType == CardType.Weather || playedCard.ability == "Weather")
+                    if (playedCard.Type == CardType.Weather || playedCard.ability == "Weather")
                     {
                         ResolveWeatherCard(state, playedCard);
                     }
                     break;
             }
         }
+
+        /// <summary>
+        /// JSON verisetindeki Lider Kartı ID'lerine göre özel Lider yeteneklerini çalıştırır.
+        /// </summary>
+        private static void ResolveLeaderAbility(GameState state, CardData leaderCard, bool isPlayer1)
+        {
+            if (leaderCard == null) return;
+
+            switch (leaderCard.id)
+            {
+                // --- KUZEY KRALLIKLARI (Northern Realms) ---
+                case "nr_l1": // Foltest 1: Yoğun Sis oynar
+                    state.weatherRanged = true;
+                    break;
+
+                case "nr_l2": // Foltest 2: Tüm hava etkilerini temizler
+                    state.weatherMelee = false;
+                    state.weatherRanged = false;
+                    state.weatherSiege = false;
+                    break;
+
+                case "nr_l3": // Foltest 3: Kuşatma sırasına Komutanın Borusu basar
+                    SetHornFlag(state, isPlayer1, "Siege", true);
+                    break;
+
+                case "nr_l4": // Foltest 4: Rakip Kuşatma toplamı >= 10 ise en güçlüsünü yakar
+                    ScorchRowIfThreshold(state, !isPlayer1, "Siege", 10);
+                    break;
+
+
+                // --- NILFGAARD ---
+                case "nilf_l1": // Emhyr 1: Rakibin elindeki 3 karta bakar (UI/Controller tarafında yönlendirilebilir)
+                    break;
+
+                case "nilf_l2": // Emhyr 2: Rakibin liderini iptal eder (GameLoop içinde kontrol edilir)
+                    break;
+
+                case "nilf_l3": // Emhyr 3: Rakip mezarlığından 1 kartı ele çeker
+                    ReviveFromOpponentGraveyardToHand(state, isPlayer1);
+                    break;
+
+                case "nilf_l4": // Emhyr 4: Tüm hava etkilerini temizler
+                    state.weatherMelee = false;
+                    state.weatherRanged = false;
+                    state.weatherSiege = false;
+                    break;
+
+
+                // --- CANAVARLAR (Monsters) ---
+                case "mon_l1": // Eredin 1: Yakın Dövüş sırasına Komutanın Borusu basar
+                    SetHornFlag(state, isPlayer1, "Melee", true);
+                    break;
+
+                case "mon_l2": // Eredin 2: Mezarlıktan 1 kartı ele döndürür
+                    ReviveFromGraveyardToHand(state, isPlayer1);
+                    break;
+
+                case "mon_l3": // Eredin 3: Dondurucu Soğuk oynar
+                    state.weatherMelee = true;
+                    break;
+
+                case "mon_l4": // Eredin 4: 2 kart atıp desteden 1 kart çeker
+                    DiscardAndDraw(state, isPlayer1, 2, 1);
+                    break;
+
+
+                // --- SCOIA'TAEL ---
+                case "sco_l1": // Francesca 1: Dondurucu Soğuk oynar
+                    state.weatherMelee = true;
+                    break;
+
+                case "sco_l2": // Francesca 2: Fazladan 1 kart çeker
+                    DrawCardsFromDeck(state, isPlayer1, 1);
+                    break;
+
+                case "sco_l3": // Francesca 3: Menzilli sırasına Komutanın Borusu basar
+                    SetHornFlag(state, isPlayer1, "Ranged", true);
+                    break;
+
+                case "sco_l4": // Francesca 4: Rakip Yakın Dövüş toplamı >= 10 ise en güçlüsünü yakar
+                    ScorchRowIfThreshold(state, !isPlayer1, "Melee", 10);
+                    break;
+
+
+                // --- SKELLIGE ---
+                case "ske_l1": // Kral Bran: Kötü havalar yarı güç düşürür (Ayrı mantıkla veya passive flag ile işlenebilir)
+                    break;
+
+                case "ske_l2": // Crach an Craite: İki oyuncunun mezarlığını destelerine geri karıştırır
+                    ReshuffleGraveyardsToDecks(state);
+                    break;
+
+                default:
+                    Debug.LogWarning($"Tanımsız Lider Kartı Yeteneği ID: {leaderCard.id}");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Belirtilen rakip sırada toplam güç threshold değerini (örn: 10) geçiyorsa en güçlü kartı yakar.
+        /// </summary>
+        private static void ScorchRowIfThreshold(GameState state, bool targetIsPlayer1, string rowType, int threshold)
+        {
+            var targetRow = targetIsPlayer1 ? 
+                (rowType == "Melee" ? state.p1Melee : rowType == "Ranged" ? state.p1Ranged : state.p1Siege) :
+                (rowType == "Melee" ? state.p2Melee : rowType == "Ranged" ? state.p2Ranged : state.p2Siege);
+
+            bool weather = rowType == "Melee" ? state.weatherMelee : rowType == "Ranged" ? state.weatherRanged : state.weatherSiege;
+            bool horn = targetIsPlayer1 ? 
+                (rowType == "Melee" ? state.p1HornMelee : rowType == "Ranged" ? state.p1HornRanged : state.p1HornSiege) :
+                (rowType == "Melee" ? state.p2HornMelee : rowType == "Ranged" ? state.p2HornRanged : state.p2HornSiege);
+
+            if (ComputeRowTotal(targetRow, weather, horn) >= threshold)
+            {
+                var powers = ComputeRowPowers(targetRow, weather, horn);
+                int maxPower = -1;
+                string strongestId = null;
+
+                for (int i = 0; i < targetRow.Count; i++)
+                {
+                    var card = CardManager.Instance.GetCardById(targetRow[i]);
+                    if (card != null && card.ability != "Hero" && powers[i] > maxPower)
+                    {
+                        maxPower = powers[i];
+                        strongestId = targetRow[i];
+                    }
+                }
+
+                if (strongestId != null)
+                {
+                    targetRow.Remove(strongestId);
+                    var graveyard = targetIsPlayer1 ? state.p1Graveyard : state.p2Graveyard;
+                    graveyard.Add(strongestId);
+                }
+            }
+        }
+
+        private static void ReviveFromGraveyardToHand(GameState state, bool isPlayer1)
+        {
+            var graveyard = isPlayer1 ? state.p1Graveyard : state.p2Graveyard;
+            var hand = isPlayer1 ? state.p1Hand : state.p2Hand;
+
+            if (graveyard != null && graveyard.Count > 0)
+            {
+                string cardId = graveyard[UnityEngine.Random.Range(0, graveyard.Count)];
+                graveyard.Remove(cardId);
+                hand.Add(cardId);
+            }
+        }
+
+        private static void ReviveFromOpponentGraveyardToHand(GameState state, bool isPlayer1)
+        {
+            var oppGraveyard = isPlayer1 ? state.p2Graveyard : state.p1Graveyard;
+            var hand = isPlayer1 ? state.p1Hand : state.p2Hand;
+
+            if (oppGraveyard != null && oppGraveyard.Count > 0)
+            {
+                string cardId = oppGraveyard[UnityEngine.Random.Range(0, oppGraveyard.Count)];
+                oppGraveyard.Remove(cardId);
+                hand.Add(cardId);
+            }
+        }
+
+        private static void DiscardAndDraw(GameState state, bool isPlayer1, int discardCount, int drawCount)
+        {
+            var hand = isPlayer1 ? state.p1Hand : state.p2Hand;
+            var graveyard = isPlayer1 ? state.p1Graveyard : state.p2Graveyard;
+
+            for (int i = 0; i < discardCount; i++)
+            {
+                if (hand.Count > 0)
+                {
+                    string cardId = hand[0];
+                    hand.RemoveAt(0);
+                    graveyard.Add(cardId);
+                }
+            }
+
+            DrawCardsFromDeck(state, isPlayer1, drawCount);
+        }
+
+        private static void ReshuffleGraveyardsToDecks(GameState state)
+        {
+            if (state.p1Graveyard != null)
+            {
+                state.p1Deck.AddRange(state.p1Graveyard);
+                state.p1Graveyard.Clear();
+            }
+            if (state.p2Graveyard != null)
+            {
+                state.p2Deck.AddRange(state.p2Graveyard);
+                state.p2Graveyard.Clear();
+            }
+        }
+
+        
 
         public static void ResolveWeatherCard(GameState state, CardData weatherCard)
         {
@@ -232,7 +434,7 @@ namespace Gwent.Core
 
             var validCards = deck
                 .Select(id => CardManager.Instance.GetCardById(id))
-                .Where(c => c != null && c.ability != "Hero" && c.cardType != CardType.Special)
+                .Where(c => c != null && c.ability != "Hero" && c.Type != CardType.Special)
                 .ToList();
 
             if (validCards.Count == 0) return;

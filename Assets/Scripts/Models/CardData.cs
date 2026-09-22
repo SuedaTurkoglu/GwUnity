@@ -27,13 +27,37 @@ namespace Gwent.Models
 
         // --- GWENT İÇİN EKLENEN ALANLAR ---
         
-        public CardType cardType = CardType.Unit;
+        public string cardType = "Unit";
 
         // Kartın Agile (Esnek) olup olmadığını kontrol eden yardımcı mülk
         public bool IsAgile => row == "Agile";
 
         // Oyuncunun destesine ekleyebileceği maksimum kopya sayısı (Örn: 3x Sefil Piyade)
         public int maxCopies = 1;
+
+        public CardType Type
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(cardType))
+                {
+                    if (id.Contains("_l") || ability == "LeaderAbility") return CardType.Leader;
+                    if (ability == "Hero") return CardType.Hero;
+                    if (ability == "Weather" || ability == "WeatherClear" || ability == "ClearWeather") return CardType.Weather;
+                    if (ability == "Decoy" || ability == "Scorch" || (ability == "CommandersHorn" && strength == 0) || row == "Any") return CardType.Special;
+                    return CardType.Unit;
+                }
+
+                if (Enum.TryParse<CardType>(cardType, true, out var result))
+                    return result;
+
+                return CardType.Unit;
+            }
+            set
+            {
+                cardType = value.ToString();
+            }
+        }
     }
 
     [Serializable]

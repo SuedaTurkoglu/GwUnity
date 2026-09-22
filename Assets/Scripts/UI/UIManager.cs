@@ -23,8 +23,8 @@ namespace Gwent.UI
         public Transform p2SiegeContainer;
 
         [Header("Leaders & Deck")]
-        public UnityEngine.UI.Image myLeaderImage;
-        public UnityEngine.UI.Image opponentLeaderImage;
+        public Transform myLeaderContainer;
+        public Transform opponentLeaderContainer;
         public GameObject myLeaderUsedOverlay;
         public GameObject opponentLeaderUsedOverlay;
         public TextMeshProUGUI remainingDeckText;
@@ -277,36 +277,46 @@ namespace Gwent.UI
             bool myAbilityUsed = (localId == state.player1Id) ? state.p1LeaderAbilityUsed : state.p2LeaderAbilityUsed;
             bool oppAbilityUsed = (localId == state.player1Id) ? state.p2LeaderAbilityUsed : state.p1LeaderAbilityUsed;
 
-            if (myLeaderImage != null && !string.IsNullOrEmpty(myLeaderId))
+            // Benim Liderim
+            if (myLeaderContainer != null && !string.IsNullOrEmpty(myLeaderId))
             {
+                foreach (Transform child in myLeaderContainer) Destroy(child.gameObject);
                 var card = CardManager.Instance.GetCardById(myLeaderId);
                 if (card != null)
                 {
-                    // CardData.imagePath kullanılıyor, ancak Image component'ine atama yapmak için
-                    // CardView'dan veya bir asset loader'dan sprite alınmalı.
-                    // Geçici olarak log basıyoruz, CardView'daki sprite atama mantığına göre güncellenmeli.
-                    Debug.Log($"My Leader Sprite Path: {card.imagePath}");
+                    GameObject leaderObj = Instantiate(cardPrefab, myLeaderContainer);
+                    var cardView = leaderObj.GetComponent<CardView>();
+                    if (cardView != null) cardView.Setup(card);
+
+                    Button btn = leaderObj.GetComponent<Button>();
+                    if (btn != null)
+                    {
+                        btn.onClick.AddListener(() => {
+                            if (!myAbilityUsed)
+                            {
+                                FirestoreGameManager.Instance.PushLeaderAbility();
+                            }
+                        });
+                    }
                 }
             }
 
-            if (opponentLeaderImage != null && !string.IsNullOrEmpty(oppLeaderId))
+            // Rakip Lider
+            if (opponentLeaderContainer != null && !string.IsNullOrEmpty(oppLeaderId))
             {
+                foreach (Transform child in opponentLeaderContainer) Destroy(child.gameObject);
                 var card = CardManager.Instance.GetCardById(oppLeaderId);
                 if (card != null)
                 {
-                    Debug.Log($"Opponent Leader Sprite Path: {card.imagePath}");
+                    GameObject leaderObj = Instantiate(cardPrefab, opponentLeaderContainer);
+                    var cardView = leaderObj.GetComponent<CardView>();
+                    if (cardView != null) cardView.Setup(card);
                 }
             }
 
-            if (myLeaderUsedOverlay != null)
-            {
-                myLeaderUsedOverlay.SetActive(myAbilityUsed);
-            }
-
-            if (opponentLeaderUsedOverlay != null)
-            {
-                opponentLeaderUsedOverlay.SetActive(oppAbilityUsed);
-            }
+            // Overlay'ler
+            if (myLeaderUsedOverlay != null) myLeaderUsedOverlay.SetActive(myAbilityUsed);
+            if (opponentLeaderUsedOverlay != null) opponentLeaderUsedOverlay.SetActive(oppAbilityUsed);
         }
 
         private void UpdateDeckCount(GameState state)

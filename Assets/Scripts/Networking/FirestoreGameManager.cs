@@ -170,7 +170,7 @@ namespace Gwent.Networking
 
             Core.AbilityManager.ResolveOnPlayAbility(state, cardData, isPlayer1, rowType);
 
-            bool isPermanentUnit = cardData.cardType == CardType.Unit || cardData.cardType == CardType.Hero;
+            bool isPermanentUnit = cardData.Type == CardType.Unit || cardData.Type == CardType.Hero;
             if (cardData.ability == "Scorch" || cardData.ability == "Medic" || cardData.ability == "Horn" || cardData.ability == "Decoy" || cardData.ability == "ClearWeather")
                 isPermanentUnit = false;
 
@@ -207,6 +207,33 @@ namespace Gwent.Networking
 
             if (state.p1Passed && state.p2Passed) ResolveRound(state);
 
+            await _matchRef.SetAsync(state);
+        }
+
+        public async Task PushLeaderAbility()
+        {
+            if (_matchRef == null) return;
+
+            var snapshot = await _matchRef.GetSnapshotAsync();
+            GameState state = snapshot.ConvertTo<GameState>();
+
+            string playerId = Core.GameManager.Instance.LocalPlayerId;
+            bool isPlayer1 = playerId == state.player1Id;
+
+            // Lider yeteneğinin kullanıldığını işaretle
+            if (isPlayer1) state.p1LeaderAbilityUsed = true;
+            else state.p2LeaderAbilityUsed = true;
+
+            // Lider kartını bul ve yeteneğini tetikle
+            var leaderId = isPlayer1 ? state.p1LeaderId : state.p2LeaderId;
+            var leaderCard = Core.CardManager.Instance.GetCardById(leaderId);
+            if (leaderCard != null)
+            {
+                // AbilityManager'daki mevcut ResolveOnPlayAbility mantığını kullanır
+                Core.AbilityManager.ResolveOnPlayAbility(state, leaderCard, isPlayer1, "None");
+            }
+
+            // Güncellenmiş durumu Firestore'a kaydet
             await _matchRef.SetAsync(state);
         }
 

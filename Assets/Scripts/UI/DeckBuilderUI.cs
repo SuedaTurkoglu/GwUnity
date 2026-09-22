@@ -73,9 +73,9 @@ namespace Gwent.UI
 
             var allCards = Core.CardManager.Instance.GetAllCards();
             
-            // Liderler haricindeki birim ve özel kartları filtrele
+            // Lider kartlarını HEM cardType HEM id formatı HEM de ability bazında kesin olarak hariç tut
             var filtered = allCards.Where(c => 
-                c.cardType != CardType.Leader && 
+                c.Type != CardType.Leader &&
                 (currentFaction == "All" || c.faction == currentFaction || c.faction == "Neutral")
             ).ToList();
 
@@ -100,8 +100,10 @@ namespace Gwent.UI
             foreach (Transform child in leaderSelectionContainer) Destroy(child.gameObject);
 
             var allCards = Core.CardManager.Instance.GetAllCards();
+
+            // YALNIZCA Lider olan kartları filtrele
             var leaders = allCards.Where(c => 
-                (c.cardType == CardType.Leader || c.id.Contains("_l")) &&
+                (c.Type == CardType.Leader || c.id.Contains("_l") || c.ability == "LeaderAbility") &&
                 (currentFaction == "All" || c.faction == currentFaction)
             ).ToList();
 
@@ -154,11 +156,11 @@ namespace Gwent.UI
                 }
 
                 // KURAL 2: Özel Kart Limiti (Maksimum 10)
-                if (card.cardType == CardType.Special)
+                if (card.Type == CardType.Special || card.Type == CardType.Weather)
                 {
                     int specialCount = currentDeck.Count(id => {
                         var c = Core.CardManager.Instance.GetCardById(id);
-                        return c != null && c.cardType == CardType.Special;
+                        return c != null && (c.Type == CardType.Special || c.Type == CardType.Weather);
                     });
 
                     if (specialCount >= 10)
@@ -196,16 +198,16 @@ namespace Gwent.UI
             // --- GWENT SAYAÇ HESAPLAMALARI ---
             int unitCount = currentDeck.Count(id => {
                 var c = Core.CardManager.Instance.GetCardById(id);
-                return c != null && (c.cardType == CardType.Unit || c.cardType == CardType.Hero);
+                return c != null && (c.Type == CardType.Unit || c.Type == CardType.Hero);
             });
 
             int specialCount = currentDeck.Count(id => {
                 var c = Core.CardManager.Instance.GetCardById(id);
-                return c != null && c.cardType == CardType.Special;
+                return c != null && (c.Type == CardType.Special || c.Type == CardType.Weather);
             });
 
             if (countText != null)
-                countText.text = $"Birim: {unitCount}/22 (Min) | Özel: {specialCount}/10 (Max)";
+                countText.text = $"Birim: {unitCount}/22 (Min) Özel: {specialCount}/10 (Max)";
 
             if (leaderText != null)
             {
@@ -264,7 +266,7 @@ namespace Gwent.UI
             // KURAL 4: En Az 22 Birim Kartı (Unit/Hero) Olmalı
             int unitCount = currentDeck.Count(id => {
                 var c = Core.CardManager.Instance.GetCardById(id);
-                return c != null && (c.cardType == CardType.Unit || c.cardType == CardType.Hero);
+                return c != null && (c.Type == CardType.Unit || c.Type == CardType.Hero);
             });
 
             if (unitCount < 22)
