@@ -5,17 +5,16 @@ using Gwent.Models;
 
 namespace Gwent.UI
 {
-    // CardPrefab'ın kök objesine eklenir. Kart verisini alıp görseli,
-    // ismi ve güç rozetini kendi başına doldurur — UIManager'ın
-    // "hangi child'ta ne var" bilmesine gerek kalmaz.
+    // CardPrefab'ın kök objesine eklenir.
     public class CardView : MonoBehaviour
     {
         [Header("Refs")]
         public Image artworkImage;
+        public Image powerBadgeImage; // Faksiyona göre değişecek Güç Rozeti
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI powerText;
-        public GameObject outline; // Seçili olduğunda görünür olur
-        public Button infoButton; // YENİ: detay popup'ını açar
+        public GameObject outline;    // Seçili olduğunda açılan Çerçeve Görseli
+        public Button infoButton;     // Detay popup'ını açar
 
         private CardData _data;
 
@@ -36,8 +35,42 @@ namespace Gwent.UI
             _data = data;
 
             if (nameText != null) nameText.text = data.name;
-            if (powerText != null) powerText.text = data.strength.ToString();
 
+            // --- LİDER KARTLARI KONTROLÜ ---
+            // Lider kartlarında güç, rozet ve güçle ilgili hiçbir şey uygulanmaz.
+            if (data.Type == CardType.Leader)
+            {
+                if (powerText != null) powerText.text = "";
+                if (powerBadgeImage != null) powerBadgeImage.gameObject.SetActive(false);
+            }
+            else
+            {
+                // Normal Birim / Kahraman / Özel Kartlar
+                if (powerText != null) powerText.text = data.strength.ToString();
+
+                // Faksiyona Özel Power Badge Yükleme
+                if (powerBadgeImage != null)
+                {
+                    powerBadgeImage.gameObject.SetActive(true);
+                    
+                    string badgePath = $"images/badges/badge_{data.faction}";
+                    Sprite badgeSprite = Core.CardManager.LoadCardSprite(badgePath);
+
+                    if (badgeSprite != null)
+                    {
+                        powerBadgeImage.sprite = badgeSprite;
+                        powerBadgeImage.color = Color.white;
+                    }
+                    else
+                    {
+                        // Bulunamadıysa varsayılan Neutral rozetini yükle
+                        Sprite defaultBadge = Core.CardManager.LoadCardSprite("images/badges/badge_Neutral");
+                        powerBadgeImage.sprite = defaultBadge;
+                    }
+                }
+            }
+
+            // --- KARAKTER GÖRSELİ (ARTWORK) YÜKLEME ---
             if (artworkImage != null)
             {
                 Sprite sprite = Core.CardManager.LoadCardSprite(data.imagePath);
