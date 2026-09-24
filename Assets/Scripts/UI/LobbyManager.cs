@@ -3,41 +3,39 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using System.Collections.Generic;
-using Gwent.Core;
 using Gwent.Networking;
+using Gwent.Core;
+using Gwent.Models;
 
 namespace Gwent.UI
 {
     public class LobbyManager : MonoBehaviour
     {
+        // --- 1. SINGLETON INSTANCE EKLEMESİ ---
         public static LobbyManager Instance { get; private set; }
 
-        [Header("UI Elements")]
-        public GameObject lobbyPanel;
-        public GameObject gamePanel;
-        public TMP_InputField playerIdInput;
-        public TMP_InputField matchIdInput;
+        [Header("Main UI References")]
         public TextMeshProUGUI matchIdDisplay;
-        public TextMeshProUGUI statusText; // YENİ: hata / bekleme mesajları için
-        public Button createButton;
-        public Button joinButton;
-        public TMP_Dropdown factionDropdown; // YENİ: fraksiyon seçimi
+        public TMP_InputField matchIdInput;
+        public TextMeshProUGUI statusText;
 
-        // Dropdown'daki sıra ile BİREBİR aynı olmalı (index eşleşmesi için)
-        private static readonly string[] FactionCodes =
-        {
-            "Northern", "Nilfgaard", "ScoiaTael", "Monsters", "Skellige"
-        };
+        [Header("Panels")]
+        public GameObject mainLobbyPanel; // Ana Lobi Ekranı (Oluştur/Katıl paneli)
+        public GameObject activeMatchesPanel; // Aktif Maçlar Listesi Penceresi
 
-        private string GetSelectedFactionCode()
-        {
-            if (factionDropdown == null) return FactionCodes[0];
-            int idx = Mathf.Clamp(factionDropdown.value, 0, FactionCodes.Length - 1);
-            return FactionCodes[idx];
-        }
+        [Header("Buttons")]
+        public Button createMatchButton;
+        public Button joinWithInputButton;
+        public Button openLobbyListButton;
+        public Button refreshLobbyButton;
 
-        void Awake()
+        [Header("Lobby List UI Panel")]
+        public Transform matchItemContainer;
+        public GameObject matchItemPrefab;
+
+        private void Awake()
         {
+            // Singleton kurulumu
             if (Instance == null)
             {
                 Instance = this;
@@ -45,39 +43,75 @@ namespace Gwent.UI
             else
             {
                 Destroy(gameObject);
-                return;
             }
         }
 
-        void Start()
+        private void Start()
         {
-            lobbyPanel.SetActive(true);
-            gamePanel.SetActive(false);
-            SetStatus(string.Empty);
+            if (createMatchButton != null)
+                createMatchButton.onClick.AddListener(OnCreateMatchClicked);
 
-            // Otomatik ID ataması ve input alanını kilitleme
-            if (playerIdInput != null)
+            if (joinWithInputButton != null)
+                joinWithInputButton.onClick.AddListener(OnJoinWithInputClicked);
+
+            if (openLobbyListButton != null)
+                openLobbyListButton.onClick.AddListener(ToggleLobbyListPanel);
+
+            if (refreshLobbyButton != null)
+                refreshLobbyButton.onClick.AddListener(OnRefreshLobbyClicked);
+
+            if (activeMatchesPanel != null)
+                activeMatchesPanel.SetActive(false);
+        }
+
+        // --- 2. RETURNTOLOBBY METODU EKLEMESİ ---
+        /// <summary>
+        /// GameOverUI veya oyun sonu ekranından tekrar lobiye dönüldüğünde çağrılır.
+        /// </summary>
+        public void ReturnToLobby()
+        {
+            // Eğer varsa Firestore ağ dinleyicisini ve maç referansını temizle
+            if (FirestoreGameManager.Instance != null)
             {
-                playerIdInput.text = GameManager.Instance.LocalPlayerId;
-                playerIdInput.interactable = false; // Kullanıcının değiştirmesini engelle
+                FirestoreGameManager.Instance.LeaveMatch();
             }
 
-            createButton.onClick.AddListener(OnCreateMatchClicked);
-            joinButton.onClick.AddListener(OnJoinMatchClicked);
+            // Ana lobi panelini görünür yap, aktif maçlar penceresini kapat
+            if (mainLobbyPanel != null)
+                mainLobbyPanel.SetActive(true);
 
-            GameManager.Instance.OnGameStarted += EnterGame;
+            if (activeMatchesPanel != null)
+                activeMatchesPanel.SetActive(false);
+
+            // Input ve durum yazılarını sıfırla
+            if (matchIdInput != null) matchIdInput.text = "";
+            if (matchIdDisplay != null) matchIdDisplay.text = "";
+
+            SetStatus("Lobiye dönüldü. Yeni bir maç oluşturabilir veya var olana katılabilirsiniz.");
+        }
+
+        public void ToggleLobbyListPanel()
+        {
+            if (activeMatchesPanel == null) return;
+
+            bool isCurrentlyActive = activeMatchesPanel.activeSelf;
+            activeMatchesPanel.SetActive(!isCurrentlyActive);
+
+            if (!isCurrentlyActive)
+            {
+                OnRefreshLobbyClicked();
+            }
         }
 
         private async void OnCreateMatchClicked()
         {
-            string pId = GameManager.Instance.LocalPlayerId; // Doğrudan GameManager'dan al
+            string pId = GameManager.Instance.LocalPlayerId;
             if (string.IsNullOrEmpty(pId))
             {
                 SetStatus("Kullanıcı kimliği oluşturulamadı!", isError: true);
                 return;
             }
 
-            SetButtonsInteractable(false);
             SetStatus("Maç oluşturuluyor...");
 
             try
@@ -85,86 +119,89 @@ namespace Gwent.UI
                 GameManager.Instance.LocalFaction = GetSelectedFactionCode();
                 string matchId = await FirestoreGameManager.Instance.CreateMatch(pId);
 
-                matchIdDisplay.text = $"Match ID: {matchId}";
-                SetStatus("Rakip bekleniyor... Bu ID'yi ikinci cihazla paylaş.");
+                if (matchIdDisplay != null)
+                    matchIdDisplay.text = $"Maç Kodu: {matchId}";
+
+                SetStatus($"Maç Kuruldu [{matchId}]. Rakip bekleniyor...");
             }
             catch (Exception e)
             {
                 Debug.LogError($"CreateMatch failed: {e}");
-                SetStatus("Maç oluşturulamadı. İnternet bağlantınızı kontrol edin.", isError: true);
-                SetButtonsInteractable(true);
+                SetStatus("Maç oluşturulamadı.", isError: true);
             }
-            // Not: create başarılı olunca joinButton'ı da kapalı tutuyoruz (SetButtonsInteractable(false) kalır),
-            // çünkü bu oyuncu artık kurucu taraf; sırada karşı tarafın katılması ve OnGameStarted event'inin
-            // tetiklenmesi var.
         }
 
-        private async void OnJoinMatchClicked()
+        public void OnJoinWithInputClicked()
         {
-            string pId = GameManager.Instance.LocalPlayerId; // Doğrudan GameManager'dan al
-            string mId = matchIdInput.text.Trim();
-
-            if (string.IsNullOrEmpty(pId) || string.IsNullOrEmpty(mId))
+            if (matchIdInput == null || string.IsNullOrEmpty(matchIdInput.text))
             {
-                SetStatus("Lütfen Match ID girin.", isError: true);
+                SetStatus("Lütfen geçerli bir Maç Kodu girin!", isError: true);
                 return;
             }
 
-            SetButtonsInteractable(false);
-            SetStatus("Maça katılınıyor...");
+            JoinSelectedMatch(matchIdInput.text.Trim());
+        }
 
-            try
+        public void JoinSelectedMatch(string matchId)
+        {
+            SetStatus($"{matchId} maçına bağlanılıyor...");
+            GameManager.Instance.LocalFaction = GetSelectedFactionCode();
+            FirestoreGameManager.Instance.JoinMatch(matchId);
+        }
+
+        public async void OnRefreshLobbyClicked()
+        {
+            SetStatus("Aktif maçlar yükleniyor...");
+
+            if (activeMatchesPanel != null && !activeMatchesPanel.activeSelf)
+                activeMatchesPanel.SetActive(true);
+
+            if (matchItemContainer != null)
             {
-                GameManager.Instance.LocalFaction = GetSelectedFactionCode();
-                FirestoreGameManager.Instance.JoinMatch(mId); // void: sadece Firestore listener'ı kuruyor
-                SetStatus("Maça katılınıyor, kartlar dağıtılıyor...");
-                // UI geçişi burada değil, OnGameStarted event'i tetiklenince (EnterGame) olacak.
+                foreach (Transform child in matchItemContainer)
+                {
+                    Destroy(child.gameObject);
+                }
             }
-            catch (Exception e)
+
+            List<GameState> waitingMatches = await FirestoreGameManager.Instance.GetWaitingMatches();
+
+            if (waitingMatches.Count == 0)
             {
-                Debug.LogError($"JoinMatch failed: {e}");
-                SetStatus("Maça katılamadınız. Match ID'yi kontrol edin.", isError: true);
-                SetButtonsInteractable(true);
+                SetStatus("Şu anda bekleyen aktif maç bulunamadı.");
+                return;
             }
-        }
 
-        public void EnterGame()
-        {
-            lobbyPanel.SetActive(false);
-            gamePanel.SetActive(true);
-        }
-
-        // YENİ: oyun bitince Game Over ekranındaki butondan çağrılır
-        public void ReturnToLobby()
-        {
-            gamePanel.SetActive(false);
-            lobbyPanel.SetActive(true);
-
-            if (matchIdDisplay != null) matchIdDisplay.text = "Match ID: —";
-            if (matchIdInput != null) matchIdInput.text = string.Empty;
-
-            SetStatus(string.Empty);
-            SetButtonsInteractable(true);
-        }
-
-        private void SetButtonsInteractable(bool value)
-        {
-            createButton.interactable = value;
-            joinButton.interactable = value;
-        }
-
-        private void SetStatus(string message, bool isError = false)
-        {
-            if (statusText == null) return;
-            statusText.text = message;
-            statusText.color = isError ? new Color(0.85f, 0.3f, 0.25f) : new Color(0.85f, 0.77f, 0.56f);
-        }
-
-        void OnDestroy()
-        {
-            if (GameManager.Instance != null)
+            foreach (var match in waitingMatches)
             {
-                GameManager.Instance.OnGameStarted -= EnterGame;
+                if (matchItemPrefab != null && matchItemContainer != null)
+                {
+                    GameObject itemObj = Instantiate(matchItemPrefab, matchItemContainer);
+                    LobbyMatchItem item = itemObj.GetComponent<LobbyMatchItem>();
+                    if (item != null)
+                    {
+                        item.Setup(match, (selectedMatchId) =>
+                        {
+                            JoinSelectedMatch(selectedMatchId);
+                        });
+                    }
+                }
+            }
+
+            SetStatus($"{waitingMatches.Count} adet aktif maç bulundu.");
+        }
+
+        private string GetSelectedFactionCode()
+        {
+            return GameManager.Instance.LocalFaction ?? "Northern";
+        }
+
+        private void SetStatus(string msg, bool isError = false)
+        {
+            if (statusText != null)
+            {
+                statusText.text = msg;
+                statusText.color = isError ? Color.red : Color.white;
             }
         }
     }

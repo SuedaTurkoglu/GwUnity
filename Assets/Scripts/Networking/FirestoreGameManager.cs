@@ -44,11 +44,24 @@ namespace Gwent.Networking
             }
         }
 
+        private string GenerateShortMatchId()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Okunması zor (0,O,1,I) karakterler çıkarıldı
+            char[] stringChars = new char[6];
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[UnityEngine.Random.Range(0, chars.Length)];
+            }
+            return new string(stringChars);
+        }
+
         public async Task<string> CreateMatch(string p1Id)
         {
+            string shortId = GenerateShortMatchId();
+
             GameState newState = new GameState
             {
-                matchId = System.Guid.NewGuid().ToString(),
+                matchId = shortId,
                 player1Id = p1Id,
                 player1Faction = Core.GameManager.Instance.LocalFaction,
                 currentTurnPlayerId = p1Id,
@@ -62,9 +75,39 @@ namespace Gwent.Networking
             return newState.matchId;
         }
 
+        public async Task<List<GameState>> GetWaitingMatches()
+        {
+            if (_db == null) return new List<GameState>();
+
+            // Status == Waiting ve kendi açmadığımız maçları getirir
+            string localPlayerId = Core.GameManager.Instance.LocalPlayerId;
+            Query query = _db.Collection("matches")
+                             .WhereEqualTo("status", (int)GameStatus.Waiting);
+
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+            List<GameState> waitingMatches = new List<GameState>();
+
+            foreach (DocumentSnapshot doc in snapshot.Documents)
+            {
+                if (doc.Exists)
+                {
+                    GameState state = doc.ConvertTo<GameState>();
+                    // Kendi oluşturduğumuz maçı listede görmemek için (opsiyonel)
+                    if (state.player1Id != localPlayerId && state.player2Id == null)
+                    {
+                        waitingMatches.Add(state);
+                    }
+                }
+            }
+
+            return waitingMatches;
+        }
+
         public void JoinMatch(string matchId)
         {
-            _matchRef = _db.Collection("matches").Document(matchId);
+            // Küçük/büyük harf uyumsuzluğunu önlemek için ToUpper() yapılır
+            string cleanMatchId = matchId.Trim().ToUpper();
+            _matchRef = _db.Collection("matches").Document(cleanMatchId);
 
             _snapshotListener = _matchRef.Listen(snapshot =>
             {
@@ -147,11 +190,6 @@ namespace Gwent.Networking
                 remaining.RemoveAt(index);
             }
             return (picked, remaining);
-        }
-
-        private List<string> ShuffleAndPick(List<string> cards, int count)
-        {
-            return DrawCards(cards, count).picked;
         }
 
         public async Task PushMove(string cardId, string rowType)
