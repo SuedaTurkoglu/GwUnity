@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ec4f50007b48e674db884991c04ff4b3
+guid: acdc7515344feb441893c4eb119c0f47
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4928889848772699830
-    second: foltest_2_0
+      213: -7765291846256676818
+    second: gargoyle_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: foltest_2_0
+      name: gargoyle_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 284
-        height: 408
+        width: 736
+        height: 1051
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6b6202df33fe66440800000000000000
-      internalID: 4928889848772699830
+      spriteID: e2032a645342c3490800000000000000
+      internalID: -7765291846256676818
       vertices: []
       indices: 
       edges: []
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      foltest_2_0: 4928889848772699830
+      gargoyle_0: -7765291846256676818
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

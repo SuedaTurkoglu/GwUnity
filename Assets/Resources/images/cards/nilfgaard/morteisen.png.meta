@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5d8d93da44822034d874516ff4d0f884
+guid: 7f4c5a8630336d1498fab68e8b6e426f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5292059106025162542
-    second: francesca_3_0
+      213: 3707105783312189559
+    second: morteisen_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -128,7 +128,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: francesca_3_0
+      name: morteisen_0
       rect:
         serializedVersion: 2
         x: 0
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2d8bff61844de86b0800000000000000
-      internalID: -5292059106025162542
+      spriteID: 7788e1f9119427330800000000000000
+      internalID: 3707105783312189559
       vertices: []
       indices: 
       edges: []
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      francesca_3_0: -5292059106025162542
+      morteisen_0: 3707105783312189559
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

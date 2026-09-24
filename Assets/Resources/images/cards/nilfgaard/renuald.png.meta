@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ec4f50007b48e674db884991c04ff4b3
+guid: 004108ff9dd142745b2af62b96f5d535
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4928889848772699830
-    second: foltest_2_0
+      213: 2496001854963545092
+    second: renuald_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: foltest_2_0
+      name: renuald_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 284
-        height: 408
+        width: 1194
+        height: 1755
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6b6202df33fe66440800000000000000
-      internalID: 4928889848772699830
+      spriteID: 40471d3767493a220800000000000000
+      internalID: 2496001854963545092
       vertices: []
       indices: 
       edges: []
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      foltest_2_0: 4928889848772699830
+      renuald_0: 2496001854963545092
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
