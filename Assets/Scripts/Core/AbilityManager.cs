@@ -14,7 +14,7 @@ namespace Gwent.Core
         /// 3. Morale Boost (+1 bonus)
         /// 4. Commander's Horn (x2 bonus)
         /// </summary>
-        public static List<int> ComputeRowPowers(List<string> cardIds, bool weatherActive, bool hornActive)
+        public static List<int> ComputeRowPowers(List<string> cardIds, bool weatherActive, bool hornActive, GameState state = null)
         {
             if (cardIds == null) return new List<int>();
 
@@ -28,7 +28,11 @@ namespace Gwent.Core
                 if (cards[i] == null) continue;
 
                 if (weatherActive && cards[i].ability != "Hero")
-                    power[i] = 1;
+                    // Eğer Kral Bran'in pasifi aktifse, kartlar 1'e düşmek yerine güçlerinin yarısını (yukarı yuvarlanarak) korur.
+                    if (state != null && state.isBranPassiveActive)
+                        power[i] = Mathf.CeilToInt(cards[i].strength / 2f);
+                    else
+                        power[i] = 1;
                 else
                     power[i] = cards[i].strength;
             }
@@ -158,9 +162,7 @@ namespace Gwent.Core
                     break;
 
                 case "nr_l2": // Foltest 2: Tüm hava etkilerini temizler
-                    state.weatherMelee = false;
-                    state.weatherRanged = false;
-                    state.weatherSiege = false;
+                    ClearAllWeather(state);
                     break;
 
                 case "nr_l3": // Foltest 3: Kuşatma sırasına Komutanın Borusu basar
@@ -174,9 +176,11 @@ namespace Gwent.Core
 
                 // --- NILFGAARD ---
                 case "nilf_l1": // Emhyr 1: Rakibin elindeki 3 karta bakar (UI/Controller tarafında yönlendirilebilir)
+                    Debug.Log($"[Lider Yeteneği] {(isPlayer1 ? "Player 1" : "Player 2")} rakibin elindeki kartları inceliyor.");
                     break;
 
                 case "nilf_l2": // Emhyr 2: Rakibin liderini iptal eder (GameLoop içinde kontrol edilir)
+                    SetOpponentLeaderDisabled(state, !isPlayer1);
                     break;
 
                 case "nilf_l3": // Emhyr 3: Rakip mezarlığından 1 kartı ele çeker
@@ -184,9 +188,7 @@ namespace Gwent.Core
                     break;
 
                 case "nilf_l4": // Emhyr 4: Tüm hava etkilerini temizler
-                    state.weatherMelee = false;
-                    state.weatherRanged = false;
-                    state.weatherSiege = false;
+                    ClearAllWeather(state);
                     break;
 
 
@@ -228,6 +230,7 @@ namespace Gwent.Core
 
                 // --- SKELLIGE ---
                 case "ske_l1": // Kral Bran: Kötü havalar yarı güç düşürür (Ayrı mantıkla veya passive flag ile işlenebilir)
+                    state.isBranPassiveActive = true;
                     break;
 
                 case "ske_l2": // Crach an Craite: İki oyuncunun mezarlığını destelerine geri karıştırır
@@ -239,6 +242,25 @@ namespace Gwent.Core
                     break;
             }
         }
+
+        #region Lider Yetenek Yardımcı Metotları
+
+        private static void ClearAllWeather(GameState state)
+        {
+            state.weatherMelee = false;
+            state.weatherRanged = false;
+            state.weatherSiege = false;
+        }
+
+        private static void SetOpponentLeaderDisabled(GameState state, bool isPlayer1Target)
+        {
+            if (isPlayer1Target)
+                state.p1LeaderAbilityUsed = true; // Rakip Lider kullanım hakkı kilitlenir
+            else
+                state.p2LeaderAbilityUsed = true;
+        }
+
+        #endregion
 
         /// <summary>
         /// Belirtilen rakip sırada toplam güç threshold değerini (örn: 10) geçiyorsa en güçlü kartı yakar.

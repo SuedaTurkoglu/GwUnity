@@ -272,15 +272,20 @@ namespace Gwent.UI
             if (state == null) return;
 
             string localId = Core.GameManager.Instance.LocalPlayerId;
-            string myLeaderId = (localId == state.player1Id) ? state.p1LeaderId : state.p2LeaderId;
-            string oppLeaderId = (localId == state.player1Id) ? state.p2LeaderId : state.p1LeaderId;
-            bool myAbilityUsed = (localId == state.player1Id) ? state.p1LeaderAbilityUsed : state.p2LeaderAbilityUsed;
-            bool oppAbilityUsed = (localId == state.player1Id) ? state.p2LeaderAbilityUsed : state.p1LeaderAbilityUsed;
+            bool isPlayer1 = (localId == state.player1Id);
 
-            // Benim Liderim
+            string myLeaderId = isPlayer1 ? state.p1LeaderId : state.p2LeaderId;
+            string oppLeaderId = isPlayer1 ? state.p2LeaderId : state.p1LeaderId;
+
+            bool myAbilityUsed = isPlayer1 ? state.p1LeaderAbilityUsed : state.p2LeaderAbilityUsed;
+            bool oppAbilityUsed = isPlayer1 ? state.p2LeaderAbilityUsed : state.p1LeaderAbilityUsed;
+
+            // --- BENİM LİDERİM ---
             if (myLeaderContainer != null && !string.IsNullOrEmpty(myLeaderId))
             {
+                // NOT: Her update'te Destroy etmek yerine kart zaten oluşturulmuşsa sadece durumunu güncellemek daha performanslıdır.
                 foreach (Transform child in myLeaderContainer) Destroy(child.gameObject);
+
                 var card = CardManager.Instance.GetCardById(myLeaderId);
                 if (card != null)
                 {
@@ -291,6 +296,10 @@ namespace Gwent.UI
                     Button btn = leaderObj.GetComponent<Button>();
                     if (btn != null)
                     {
+                        // Lider kullanıldıysa butonu tıklanamaz (non-interactable) yap
+                        btn.interactable = !myAbilityUsed;
+
+                        btn.onClick.RemoveAllListeners(); // Çifte tıklama dinleyicilerini önle
                         btn.onClick.AddListener(() => {
                             if (!myAbilityUsed)
                             {
@@ -298,25 +307,47 @@ namespace Gwent.UI
                             }
                         });
                     }
+
+                    // Kartın görsel olarak pasif olduğunu hissettirmek için alfa/karartma ekle
+                    var canvasGroup = leaderObj.GetComponent<CanvasGroup>();
+                    if (canvasGroup == null) canvasGroup = leaderObj.AddComponent<CanvasGroup>();
+                    canvasGroup.alpha = myAbilityUsed ? 0.5f : 1.0f; // Kullanıldıysa şeffaflaştır
                 }
             }
 
-            // Rakip Lider
+            // --- RAKİP LİDER ---
             if (opponentLeaderContainer != null && !string.IsNullOrEmpty(oppLeaderId))
             {
                 foreach (Transform child in opponentLeaderContainer) Destroy(child.gameObject);
+
                 var card = CardManager.Instance.GetCardById(oppLeaderId);
                 if (card != null)
                 {
                     GameObject leaderObj = Instantiate(cardPrefab, opponentLeaderContainer);
                     var cardView = leaderObj.GetComponent<CardView>();
                     if (cardView != null) cardView.Setup(card);
+
+                    Button btn = leaderObj.GetComponent<Button>();
+                    if (btn != null) btn.interactable = false; // Rakip lider zaten tıklanamaz olmalı
+
+                    var canvasGroup = leaderObj.GetComponent<CanvasGroup>();
+                    if (canvasGroup == null) canvasGroup = leaderObj.AddComponent<CanvasGroup>();
+                    canvasGroup.alpha = oppAbilityUsed ? 0.5f : 1.0f;
                 }
             }
 
-            // Overlay'ler
-            if (myLeaderUsedOverlay != null) myLeaderUsedOverlay.SetActive(myAbilityUsed);
-            if (opponentLeaderUsedOverlay != null) opponentLeaderUsedOverlay.SetActive(oppAbilityUsed);
+            // --- OVERLAY GÖSTERİMLERİ ---
+            if (myLeaderUsedOverlay != null)
+            {
+                myLeaderUsedOverlay.SetActive(myAbilityUsed);
+                myLeaderUsedOverlay.transform.SetAsLastSibling(); // Overlay'in kartın önünde/üstünde kalmasını sağla
+            }
+
+            if (opponentLeaderUsedOverlay != null)
+            {
+                opponentLeaderUsedOverlay.SetActive(oppAbilityUsed);
+                opponentLeaderUsedOverlay.transform.SetAsLastSibling();
+            }
         }
 
         private void UpdateDeckCount(GameState state)

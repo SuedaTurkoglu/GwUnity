@@ -54,7 +54,9 @@ namespace Gwent.Models
         // Maç bitince kazananın id'si buraya yazılır
         [FirestoreProperty] public string winnerId { get; set; }
 
-        // YENİ: Gelişmiş Yetenek Takibi (AbilityManager için)
+        // Gelişmiş Yetenek Takibi (AbilityManager için)
+        [FirestoreProperty] public bool isBranPassiveActive { get; set; } = false;
+
         [FirestoreProperty] public bool weatherMelee { get; set; } = false;
         [FirestoreProperty] public bool weatherRanged { get; set; } = false;
         [FirestoreProperty] public bool weatherSiege { get; set; } = false;
