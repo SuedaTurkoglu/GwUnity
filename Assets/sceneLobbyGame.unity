@@ -6250,7 +6250,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &830850379
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11309,14 +11309,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
   m_Padding:
     m_Left: 0
-    m_Right: 10
+    m_Right: 0
     m_Top: 10
     m_Bottom: 10
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 150, y: 220}
-  m_Spacing: {x: 10, y: 10}
+  m_Spacing: {x: 5, y: 10}
   m_Constraint: 1
   m_ConstraintCount: 5
 --- !u!114 &1663893507
@@ -11371,7 +11371,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 350}
-  m_SizeDelta: {x: 150, y: 70}
+  m_SizeDelta: {x: 130, y: 70}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1673500858
 MonoBehaviour:
@@ -11415,7 +11415,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Kalan Deste: 99'
+  m_text: 'Kalan Deste: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12790,6 +12790,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1764868368}
   m_CullTransparentMesh: 1
+--- !u!1 &1805552960
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1805552961}
+  - component: {fileID: 1805552962}
+  m_Layer: 0
+  m_Name: CardAnimationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1805552961
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805552960}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 473.42303, y: 1219.7733, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1805552962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805552960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5621fcbcce6853949824c68c5a2a351e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gwent.UI.CardAnimationManager
 --- !u!1 &1809496454
 GameObject:
   m_ObjectHideFlags: 0
@@ -14437,7 +14481,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1982632229}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 595431458}
+        m_TargetAssemblyTypeName: Gwent.UI.LobbyManager, Assembly-CSharp
+        m_MethodName: ReturnToLobby
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1982632229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15606,3 +15662,4 @@ SceneRoots:
   - {fileID: 595431462}
   - {fileID: 861604508}
   - {fileID: 1860101247}
+  - {fileID: 1805552961}

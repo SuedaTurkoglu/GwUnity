@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 using Gwent.Models;
 
 namespace Gwent.UI
@@ -19,6 +20,7 @@ namespace Gwent.UI
         public Button infoButton;     // Detay popup'ını açar
 
         private CardData _data;
+        private Vector3 _originalScale;
 
         void Awake()
         {
@@ -28,6 +30,55 @@ namespace Gwent.UI
                 {
                     if (_data != null) CardDetailPopup.Instance?.Show(_data);
                 });
+            }
+        }
+
+        // --- ANIMASYON METOTLARI ---
+
+        /// <summary>
+        /// Fare ile kartın üzerine gelindiğinde hafifçe büyütür ve öne çıkarır.
+        /// </summary>
+        public void AnimateHoverEnter()
+        {
+            transform.DOKill();
+            transform.DOScale(_originalScale * 1.15f, 0.2f).SetEase(Ease.OutBack);
+        }
+
+        /// <summary>
+        /// Fare kartın üzerinden ayrıldığında eski boyutuna döndürür.
+        /// </summary>
+        public void AnimateHoverExit()
+        {
+            transform.DOKill();
+            transform.DOScale(_originalScale, 0.15f).SetEase(Ease.OutQuad);
+        }
+
+        /// <summary>
+        /// Scorch veya Raund Sonu yok olma animasyonu (Sallanıp küçülerek kaybolur).
+        /// </summary>
+        public void AnimateDestroy(System.Action onComplete = null)
+        {
+            transform.DOKill();
+            // Hafif sallantı yapıp ardından saydamlaşarak küçülür
+            Sequence seq = DOTween.Sequence();
+            seq.Append(transform.DOShakePosition(0.4f, strength: 10f, vibrato: 20));
+            seq.Append(transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack));
+            seq.OnComplete(() =>
+            {
+                onComplete?.Invoke();
+                Destroy(gameObject);
+            });
+        }
+
+        /// <summary>
+        /// Güç değiştiğinde (Moral bonusu, Hava kartı vb.) rozetin zıplama efekti.
+        /// </summary>
+        public void AnimatePowerChange()
+        {
+            if (powerBadgeImage != null)
+            {
+                powerBadgeImage.transform.DOKill();
+                powerBadgeImage.transform.DOPunchScale(Vector3.one * 0.4f, 0.3f, vibrato: 5);
             }
         }
 

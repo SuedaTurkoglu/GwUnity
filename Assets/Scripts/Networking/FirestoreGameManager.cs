@@ -207,7 +207,17 @@ namespace Gwent.Networking
 
             var cardData = Core.CardManager.Instance.GetCardById(cardId);
             if (cardData == null) return;
-            if (cardData.row != "Any" && cardData.row != rowType) return;
+            bool isValidRow = cardData.row == "Any" || 
+                     cardData.row == "Agile" || 
+                     cardData.row == rowType || 
+                     cardData.Type == CardType.Special || 
+                     cardData.Type == CardType.Weather;
+
+            if (!isValidRow)
+            {
+                Debug.LogWarning($"Geçersiz sıra hamlesi! Kart Sırası: {cardData.row}, Hedef Sıra: {rowType}");
+                return;
+            }
 
             var snapshot = await _matchRef.GetSnapshotAsync();
             GameState state = snapshot.ConvertTo<GameState>();
@@ -217,15 +227,21 @@ namespace Gwent.Networking
 
             Core.AbilityManager.ResolveOnPlayAbility(state, cardData, isPlayer1, rowType);
 
-            bool isPermanentUnit = cardData.Type == CardType.Unit || cardData.Type == CardType.Hero;
-            if (cardData.ability == "Scorch" || cardData.ability == "Medic" || cardData.ability == "Horn" || cardData.ability == "Decoy" || cardData.ability == "ClearWeather")
-                isPermanentUnit = false;
+            // --- HORN, WEATHER VE DİĞER KARTLARIN SAHADA KALMASI ---
+            // Yalnızca anlık (tek seferlik) etki yapıp yok olan kartlar (Örn: Scorch, ClearWeather) sıraya eklenmez.
+            // Horn, Weather ve Birim kartları sırada kalmaya devam eder.
+            bool isInstantSpell = cardData.ability == "Scorch" || cardData.ability == "ClearWeather" || cardData.ability == "WeatherClear";
 
-
-            if (isPermanentUnit)
+            if (!isInstantSpell)
             {
                 if (isPlayer1) AddCardToRow(state.p1Melee, state.p1Ranged, state.p1Siege, cardId, rowType);
                 else AddCardToRow(state.p2Melee, state.p2Ranged, state.p2Siege, cardId, rowType);
+            }
+            else
+            {
+                // Anlık kartları doğrudan mezarlığa gönder
+                var graveyard = isPlayer1 ? state.p1Graveyard : state.p2Graveyard;
+                graveyard.Add(cardId);
             }
 
             var hand = isPlayer1 ? state.p1Hand : state.p2Hand;
@@ -335,6 +351,10 @@ namespace Gwent.Networking
                 case "Melee": melee.Add(cardId); break;
                 case "Ranged": ranged.Add(cardId); break;
                 case "Siege": siege.Add(cardId); break;
+                //agile için
+                default:
+                    melee.Add(cardId);
+                    break;
             }
         }
 

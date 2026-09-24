@@ -203,7 +203,7 @@ namespace Gwent.UI
                 return;
             }
 
-            // YENİ: kart sadece kendi tanımlı satırında (row) oynanabilir.
+            // kart sadece kendi tanımlı satırında (row) oynanabilir.
             var cardData = CardManager.Instance.GetCardById(_selectedCardId);
             if (cardData == null)
             {
@@ -211,10 +211,16 @@ namespace Gwent.UI
                 return;
             }
 
-            if (cardData.row != "Any" && cardData.row != rowType)
+            bool isValidRow = cardData.row == "Any" ||
+                            cardData.row == "Agile" ||
+                            cardData.row == rowType ||
+                            cardData.Type == CardType.Special ||
+                            cardData.Type == CardType.Weather;
+
+            if (!isValidRow)
             {
                 ShowFeedback($"'{cardData.name}' sadece {cardData.row} sırasına oynanabilir.");
-                return; // seçim iptal olmuyor, kullanıcı doğru sıraya tıklayabilir
+                return; // Seçim iptal olmuyor, kullanıcı doğru sıraya tıklayabilir
             }
 
             FirestoreGameManager.Instance.PushMove(_selectedCardId, rowType);

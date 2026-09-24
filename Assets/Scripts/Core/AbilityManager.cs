@@ -27,14 +27,24 @@ namespace Gwent.Core
             {
                 if (cards[i] == null) continue;
 
+                // Hava kartları ve Özel kartların kendi taban gücü 0'dır
+                if (cards[i].Type == CardType.Weather || cards[i].Type == CardType.Special)
+                {
+                    power[i] = 0;
+                    continue;
+                }
+
                 if (weatherActive && cards[i].ability != "Hero")
-                    // Eğer Kral Bran'in pasifi aktifse, kartlar 1'e düşmek yerine güçlerinin yarısını (yukarı yuvarlanarak) korur.
+                {
                     if (state != null && state.isBranPassiveActive)
                         power[i] = Mathf.CeilToInt(cards[i].strength / 2f);
                     else
                         power[i] = 1;
+                }
                 else
+                {
                     power[i] = cards[i].strength;
+                }
             }
 
             // 2. ADIM: TightBond (Sıkı Bağ)
@@ -48,14 +58,14 @@ namespace Gwent.Core
                 int count = group.Count();
                 foreach (var item in group)
                 {
-                    power[item.i] *= count; // Kaç adet varsa o kadarla çarpılır (2 tane ise x2, 3 tane ise x3)
+                    power[item.i] *= count;
                 }
             }
 
             // 3. ADIM: Morale Boost (Moral Artışı)
             var moraleIndices = cards
                 .Select((c, i) => new { c, i })
-                .Where(x => x.c != null && x.c.ability == "MoraleBoost" || x.c?.ability == "Morale")
+                .Where(x => x.c != null && (x.c.ability == "MoraleBoost" || x.c.ability == "Morale"))
                 .Select(x => x.i)
                 .ToList();
 
@@ -64,21 +74,22 @@ namespace Gwent.Core
                 for (int i = 0; i < n; i++)
                 {
                     if (cards[i] == null || cards[i].ability == "Hero") continue;
-                    // Kendisi hariç sahada kaç moral kartı varsa o kadar +1 alır
                     int bonus = moraleIndices.Count(mi => mi != i);
                     power[i] += bonus;
                 }
             }
 
             // 4. ADIM: Commander's Horn (Komutan Borusu)
-            // Hem sıradaki Horn efekti hem de Dandelion gibi kart bazlı Horn kontrol edilir
-            for (int i = 0; i < n; i++)
-            {
-                if (cards[i] == null || cards[i].ability == "Hero") continue;
+            // Sırada Horn efekti aktifse VEYA sırada Dandelion gibi Horn yeteneğine sahip bir kart varsa güç 2 katına çıkar.
+            bool rowHasHornUnit = cards.Any(c => c != null && (c.ability == "CommandersHorn" || c.ability == "Horn"));
+            bool isHornApplied = hornActive || rowHasHornUnit;
 
-                bool cardIsHorn = cards[i].ability == "CommandersHorn" || cards[i].ability == "Horn";
-                if (hornActive || cardIsHorn)
+            if (isHornApplied)
+            {
+                for (int i = 0; i < n; i++)
                 {
+                    if (cards[i] == null || cards[i].ability == "Hero" || cards[i].Type == CardType.Special || cards[i].Type == CardType.Weather) 
+                        continue;
                     power[i] *= 2;
                 }
             }
@@ -86,9 +97,9 @@ namespace Gwent.Core
             return power.ToList();
         }
 
-        public static int ComputeRowTotal(List<string> cardIds, bool weatherActive, bool hornActive)
+        public static int ComputeRowTotal(List<string> cardIds, bool weatherActive, bool hornActive, GameState state = null)
         {
-            return ComputeRowPowers(cardIds, weatherActive, hornActive).Sum();
+            return ComputeRowPowers(cardIds, weatherActive, hornActive, state).Sum();
         }
 
         public static void ResolveOnPlayAbility(GameState state, CardData playedCard, bool isPlayer1, string rowType)
@@ -109,27 +120,22 @@ namespace Gwent.Core
                     break;
 
                 case "Scorch":
-                    // Genel Yakma: Tüm sahadaki en güçlü kart(ları) siler
                     ScorchGlobalStrongest(state);
                     break;
 
                 case "Medic":
-                    // İstek üzerine: Desteden random kart çekip sahaya koyar
                     PlayRandomFromDeck(state, isPlayer1);
                     break;
 
                 case "Decoy":
-                    // İstek üzerine: Sahadan random kartı ele geri döndürür
                     ReturnRandomCardToHand(state, isPlayer1);
                     break;
 
                 case "Spy":
-                    // Ajan: Desteden 2 kart çektirir (Ajan kartının rakip sahaya konması GameLoop/Controller'da işlenmelidir)
                     DrawCardsFromDeck(state, isPlayer1, 2);
                     break;
 
                 case "Muster":
-                    // Sürü: Eldeki ve destedeki aynı isimli kartları sahaya çeker
                     MusterSameCards(state, playedCard, isPlayer1);
                     break;
 
@@ -147,93 +153,68 @@ namespace Gwent.Core
             }
         }
 
-        /// <summary>
-        /// JSON verisetindeki Lider Kartı ID'lerine göre özel Lider yeteneklerini çalıştırır.
-        /// </summary>
         private static void ResolveLeaderAbility(GameState state, CardData leaderCard, bool isPlayer1)
         {
             if (leaderCard == null) return;
 
             switch (leaderCard.id)
             {
-                // --- KUZEY KRALLIKLARI (Northern Realms) ---
-                case "nr_l1": // Foltest 1: Yoğun Sis oynar
+                case "nr_l1":
                     state.weatherRanged = true;
                     break;
-
-                case "nr_l2": // Foltest 2: Tüm hava etkilerini temizler
+                case "nr_l2":
                     ClearAllWeather(state);
                     break;
-
-                case "nr_l3": // Foltest 3: Kuşatma sırasına Komutanın Borusu basar
+                case "nr_l3":
                     SetHornFlag(state, isPlayer1, "Siege", true);
                     break;
-
-                case "nr_l4": // Foltest 4: Rakip Kuşatma toplamı >= 10 ise en güçlüsünü yakar
+                case "nr_l4":
                     ScorchRowIfThreshold(state, !isPlayer1, "Siege", 10);
                     break;
 
-
-                // --- NILFGAARD ---
-                case "nilf_l1": // Emhyr 1: Rakibin elindeki 3 karta bakar (UI/Controller tarafında yönlendirilebilir)
+                case "nilf_l1":
                     Debug.Log($"[Lider Yeteneği] {(isPlayer1 ? "Player 1" : "Player 2")} rakibin elindeki kartları inceliyor.");
                     break;
-
-                case "nilf_l2": // Emhyr 2: Rakibin liderini iptal eder (GameLoop içinde kontrol edilir)
+                case "nilf_l2":
                     SetOpponentLeaderDisabled(state, !isPlayer1);
                     break;
-
-                case "nilf_l3": // Emhyr 3: Rakip mezarlığından 1 kartı ele çeker
+                case "nilf_l3":
                     ReviveFromOpponentGraveyardToHand(state, isPlayer1);
                     break;
-
-                case "nilf_l4": // Emhyr 4: Tüm hava etkilerini temizler
+                case "nilf_l4":
                     ClearAllWeather(state);
                     break;
 
-
-                // --- CANAVARLAR (Monsters) ---
-                case "mon_l1": // Eredin 1: Yakın Dövüş sırasına Komutanın Borusu basar
+                case "mon_l1":
                     SetHornFlag(state, isPlayer1, "Melee", true);
                     break;
-
-                case "mon_l2": // Eredin 2: Mezarlıktan 1 kartı ele döndürür
+                case "mon_l2":
                     ReviveFromGraveyardToHand(state, isPlayer1);
                     break;
-
-                case "mon_l3": // Eredin 3: Dondurucu Soğuk oynar
+                case "mon_l3":
                     state.weatherMelee = true;
                     break;
-
-                case "mon_l4": // Eredin 4: 2 kart atıp desteden 1 kart çeker
+                case "mon_l4":
                     DiscardAndDraw(state, isPlayer1, 2, 1);
                     break;
 
-
-                // --- SCOIA'TAEL ---
-                case "sco_l1": // Francesca 1: Dondurucu Soğuk oynar
+                case "sco_l1":
                     state.weatherMelee = true;
                     break;
-
-                case "sco_l2": // Francesca 2: Fazladan 1 kart çeker
+                case "sco_l2":
                     DrawCardsFromDeck(state, isPlayer1, 1);
                     break;
-
-                case "sco_l3": // Francesca 3: Menzilli sırasına Komutanın Borusu basar
+                case "sco_l3":
                     SetHornFlag(state, isPlayer1, "Ranged", true);
                     break;
-
-                case "sco_l4": // Francesca 4: Rakip Yakın Dövüş toplamı >= 10 ise en güçlüsünü yakar
+                case "sco_l4":
                     ScorchRowIfThreshold(state, !isPlayer1, "Melee", 10);
                     break;
 
-
-                // --- SKELLIGE ---
-                case "ske_l1": // Kral Bran: Kötü havalar yarı güç düşürür (Ayrı mantıkla veya passive flag ile işlenebilir)
+                case "ske_l1":
                     state.isBranPassiveActive = true;
                     break;
-
-                case "ske_l2": // Crach an Craite: İki oyuncunun mezarlığını destelerine geri karıştırır
+                case "ske_l2":
                     ReshuffleGraveyardsToDecks(state);
                     break;
 
@@ -255,16 +236,13 @@ namespace Gwent.Core
         private static void SetOpponentLeaderDisabled(GameState state, bool isPlayer1Target)
         {
             if (isPlayer1Target)
-                state.p1LeaderAbilityUsed = true; // Rakip Lider kullanım hakkı kilitlenir
+                state.p1LeaderAbilityUsed = true;
             else
                 state.p2LeaderAbilityUsed = true;
         }
 
         #endregion
 
-        /// <summary>
-        /// Belirtilen rakip sırada toplam güç threshold değerini (örn: 10) geçiyorsa en güçlü kartı yakar.
-        /// </summary>
         private static void ScorchRowIfThreshold(GameState state, bool targetIsPlayer1, string rowType, int threshold)
         {
             var targetRow = targetIsPlayer1 ? 
@@ -276,9 +254,9 @@ namespace Gwent.Core
                 (rowType == "Melee" ? state.p1HornMelee : rowType == "Ranged" ? state.p1HornRanged : state.p1HornSiege) :
                 (rowType == "Melee" ? state.p2HornMelee : rowType == "Ranged" ? state.p2HornRanged : state.p2HornSiege);
 
-            if (ComputeRowTotal(targetRow, weather, horn) >= threshold)
+            if (ComputeRowTotal(targetRow, weather, horn, state) >= threshold)
             {
-                var powers = ComputeRowPowers(targetRow, weather, horn);
+                var powers = ComputeRowPowers(targetRow, weather, horn, state);
                 int maxPower = -1;
                 string strongestId = null;
 
@@ -308,7 +286,7 @@ namespace Gwent.Core
 
             if (graveyard != null && graveyard.Count > 0)
             {
-                string cardId = graveyard[UnityEngine.Random.Range(0, graveyard.Count)];
+                string cardId = graveyard[Random.Range(0, graveyard.Count)];
                 graveyard.Remove(cardId);
                 hand.Add(cardId);
             }
@@ -321,7 +299,7 @@ namespace Gwent.Core
 
             if (oppGraveyard != null && oppGraveyard.Count > 0)
             {
-                string cardId = oppGraveyard[UnityEngine.Random.Range(0, oppGraveyard.Count)];
+                string cardId = oppGraveyard[Random.Range(0, oppGraveyard.Count)];
                 oppGraveyard.Remove(cardId);
                 hand.Add(cardId);
             }
@@ -359,8 +337,6 @@ namespace Gwent.Core
             }
         }
 
-        
-
         public static void ResolveWeatherCard(GameState state, CardData weatherCard)
         {
             if (weatherCard == null) return;
@@ -373,7 +349,40 @@ namespace Gwent.Core
                 state.weatherMelee = false;
                 state.weatherRanged = false;
                 state.weatherSiege = false;
+
+                RemoveAllWeatherCardsFromBoard(state);
             }
+        }
+
+        /// <summary>
+        /// Temiz Hava oynandığında sahalarda kalan Weather kartlarını temizleyip mezarlığa gönderir.
+        /// </summary>
+        private static void RemoveAllWeatherCardsFromBoard(GameState state)
+        {
+            void CleanRow(List<string> row, List<string> graveyard)
+            {
+                if (row == null) return;
+                var weatherCardIds = row.Where(id => {
+                    var c = CardManager.Instance.GetCardById(id);
+                    return c != null && c.Type == CardType.Weather;
+                }).ToList();
+
+                foreach (var id in weatherCardIds)
+                {
+                    row.Remove(id);
+                    if (graveyard != null) graveyard.Add(id);
+                }
+            }
+
+            // Oyuncu 1 Sıraları
+            CleanRow(state.p1Melee, state.p1Graveyard);
+            CleanRow(state.p1Ranged, state.p1Graveyard);
+            CleanRow(state.p1Siege, state.p1Graveyard);
+
+            // Oyuncu 2 Sıraları
+            CleanRow(state.p2Melee, state.p2Graveyard);
+            CleanRow(state.p2Ranged, state.p2Graveyard);
+            CleanRow(state.p2Siege, state.p2Graveyard);
         }
 
         public static void ClearRoundEffects(GameState state)
@@ -405,9 +414,6 @@ namespace Gwent.Core
             }
         }
 
-        /// <summary>
-        /// Orijinal Scorch (Yakma) Kuralı: Sahadaki (P1 + P2) En Yüksek Güce Sahip (Hero Olmayan) Kart(ları) Yakar.
-        /// </summary>
         private static void ScorchGlobalStrongest(GameState state)
         {
             List<(List<string> row, string id, int power, List<string> graveyard)> allCards = new List<(List<string>, string, int, List<string>)>();
@@ -415,7 +421,7 @@ namespace Gwent.Core
             void CollectRow(List<string> row, bool weather, bool horn, List<string> graveyard)
             {
                 if (row == null) return;
-                var powers = ComputeRowPowers(row, weather, horn);
+                var powers = ComputeRowPowers(row, weather, horn, state);
                 for (int i = 0; i < row.Count; i++)
                 {
                     var card = CardManager.Instance.GetCardById(row[i]);
@@ -446,9 +452,6 @@ namespace Gwent.Core
             }
         }
 
-        /// <summary>
-        /// Medic Yeteneği (Geçici): Desteden rastgele bir birim kartını çekip sahaya yerleştirir.
-        /// </summary>
         private static void PlayRandomFromDeck(GameState state, bool isPlayer1)
         {
             var deck = isPlayer1 ? state.p1Deck : state.p2Deck;
@@ -477,9 +480,6 @@ namespace Gwent.Core
             }
         }
 
-        /// <summary>
-        /// Decoy Yeteneği (Geçici): Sahadaki Hero olmayan rastgele bir kartı ele geri döndürür.
-        /// </summary>
         private static void ReturnRandomCardToHand(GameState state, bool isPlayer1)
         {
             var melee = isPlayer1 ? state.p1Melee : state.p2Melee;
@@ -511,9 +511,6 @@ namespace Gwent.Core
             hand.Add(selected.id);
         }
 
-        /// <summary>
-        /// Spy Mekaniği: Desteden belirtilen sayıda kart çeker.
-        /// </summary>
         private static void DrawCardsFromDeck(GameState state, bool isPlayer1, int count)
         {
             var deck = isPlayer1 ? state.p1Deck : state.p2Deck;
@@ -530,9 +527,6 @@ namespace Gwent.Core
             }
         }
 
-        /// <summary>
-        /// Muster Mekaniği: Elde ve destede aynı isme sahip tüm kartları bulup sahaya dizer.
-        /// </summary>
         private static void MusterSameCards(GameState state, CardData playedCard, bool isPlayer1)
         {
             var deck = isPlayer1 ? state.p1Deck : state.p2Deck;
@@ -541,7 +535,6 @@ namespace Gwent.Core
                 (playedCard.row == "Melee" ? state.p1Melee : playedCard.row == "Ranged" ? state.p1Ranged : state.p1Siege) :
                 (playedCard.row == "Melee" ? state.p2Melee : playedCard.row == "Ranged" ? state.p2Ranged : state.p2Siege);
 
-            // Destedekileri çağır
             var fromDeck = deck.Where(id => CardManager.Instance.GetCardById(id)?.name == playedCard.name).ToList();
             foreach (var id in fromDeck)
             {
@@ -549,7 +542,6 @@ namespace Gwent.Core
                 targetRow.Add(id);
             }
 
-            // Eldekileri çağır
             var fromHand = hand.Where(id => CardManager.Instance.GetCardById(id)?.name == playedCard.name).ToList();
             foreach (var id in fromHand)
             {

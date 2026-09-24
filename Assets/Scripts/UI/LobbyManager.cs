@@ -104,6 +104,9 @@ namespace Gwent.UI
                 FirestoreGameManager.Instance.LeaveMatch();
             }
 
+            if (gamePanel != null)
+                gamePanel.SetActive(false);
+
             if (mainLobbyPanel != null)
                 mainLobbyPanel.SetActive(true);
 
