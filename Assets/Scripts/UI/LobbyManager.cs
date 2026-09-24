@@ -21,7 +21,8 @@ namespace Gwent.UI
 
         [Header("Panels")]
         public GameObject mainLobbyPanel; // Ana Lobi Ekranı (Oluştur/Katıl paneli)
-        public GameObject activeMatchesPanel; // Aktif Maçlar Listesi Penceresi
+        public GameObject activeMatchesPanel; // Aktif Maçlar Listesi Penceresi (LobbyScrollView)
+        public GameObject gamePanel;
 
         [Header("Buttons")]
         public Button createMatchButton;
@@ -46,6 +47,16 @@ namespace Gwent.UI
             }
         }
 
+        private void OnEnable()
+        {
+            FirestoreGameManager.OnGameStarted += HandleGameStarted;
+        }
+
+        private void OnDisable()
+        {
+            FirestoreGameManager.OnGameStarted -= HandleGameStarted;
+        }
+
         private void Start()
         {
             if (createMatchButton != null)
@@ -60,47 +71,82 @@ namespace Gwent.UI
             if (refreshLobbyButton != null)
                 refreshLobbyButton.onClick.AddListener(OnRefreshLobbyClicked);
 
-            if (activeMatchesPanel != null)
-                activeMatchesPanel.SetActive(false);
+            // Başlangıçta hem maç listesini hem de yenileme butonunu gizle
+            SetLobbyListVisibility(false);
         }
 
-        // --- 2. RETURNTOLOBBY METODU EKLEMESİ ---
+        /// <summary>
+        /// Maç başladığında (GameStatus.Playing olduğunda) otomatik tetiklenir.
+        /// Lobi panellerini kapatıp Oyun Panelini açar.
+        /// </summary>
+        private void HandleGameStarted(GameState state)
+        {
+            SetStatus("Maç başladı! Oyuna yönlendiriliyorsunuz...");
+
+            // Lobiye ait panelleri kapat
+            if (mainLobbyPanel != null)
+                mainLobbyPanel.SetActive(false);
+
+            SetLobbyListVisibility(false);
+
+            // Oyun sahası/ekranı panelini aç
+            if (gamePanel != null)
+                gamePanel.SetActive(true);
+        }
+
         /// <summary>
         /// GameOverUI veya oyun sonu ekranından tekrar lobiye dönüldüğünde çağrılır.
         /// </summary>
         public void ReturnToLobby()
         {
-            // Eğer varsa Firestore ağ dinleyicisini ve maç referansını temizle
             if (FirestoreGameManager.Instance != null)
             {
                 FirestoreGameManager.Instance.LeaveMatch();
             }
 
-            // Ana lobi panelini görünür yap, aktif maçlar penceresini kapat
             if (mainLobbyPanel != null)
                 mainLobbyPanel.SetActive(true);
 
-            if (activeMatchesPanel != null)
-                activeMatchesPanel.SetActive(false);
+            // Lobiye dönüldüğünde maç listesini ve yenile butonunu gizle
+            SetLobbyListVisibility(false);
 
-            // Input ve durum yazılarını sıfırla
             if (matchIdInput != null) matchIdInput.text = "";
             if (matchIdDisplay != null) matchIdDisplay.text = "";
 
             SetStatus("Lobiye dönüldü. Yeni bir maç oluşturabilir veya var olana katılabilirsiniz.");
         }
 
+        /// <summary>
+        /// openLobbyListButton basıldığında LobbyScrollView (activeMatchesPanel) 
+        /// ve refreshLobbyButton elemanlarını aynı anda görünür/gizli yapar.
+        /// </summary>
         public void ToggleLobbyListPanel()
         {
             if (activeMatchesPanel == null) return;
 
+            // Mevcut durumu alıp tersine çeviriyoruz (Toggle)
             bool isCurrentlyActive = activeMatchesPanel.activeSelf;
-            activeMatchesPanel.SetActive(!isCurrentlyActive);
+            bool newState = !isCurrentlyActive;
 
-            if (!isCurrentlyActive)
+            SetLobbyListVisibility(newState);
+
+            // Eğer görünür yapıldıysa aktif maçları çek
+            if (newState)
             {
                 OnRefreshLobbyClicked();
             }
+        }
+
+        /// <summary>
+        /// Liste paneli ve Yenile butonunun görünürlüğünü tek noktadan yönetir.
+        /// </summary>
+        private void SetLobbyListVisibility(bool isVisible)
+        {
+            if (activeMatchesPanel != null)
+                activeMatchesPanel.SetActive(isVisible);
+
+            if (refreshLobbyButton != null)
+                refreshLobbyButton.gameObject.SetActive(isVisible);
         }
 
         private async void OnCreateMatchClicked()
@@ -153,8 +199,8 @@ namespace Gwent.UI
         {
             SetStatus("Aktif maçlar yükleniyor...");
 
-            if (activeMatchesPanel != null && !activeMatchesPanel.activeSelf)
-                activeMatchesPanel.SetActive(true);
+            // Yenilemeye basıldığında görünürlüklerinin açık olduğundan emin ol
+            SetLobbyListVisibility(true);
 
             if (matchItemContainer != null)
             {

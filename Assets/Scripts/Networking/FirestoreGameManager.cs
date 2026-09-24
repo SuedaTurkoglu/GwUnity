@@ -2,6 +2,7 @@ using UnityEngine;
 using Firebase;
 using Firebase.Firestore;
 using Gwent.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace Gwent.Networking
     public class FirestoreGameManager : MonoBehaviour
     {
         public static FirestoreGameManager Instance { get; private set; }
+
+        public static event Action<GameState> OnGameStarted;
 
         private FirebaseFirestore _db;
         private DocumentReference _matchRef;
@@ -105,7 +108,6 @@ namespace Gwent.Networking
 
         public void JoinMatch(string matchId)
         {
-            // Küçük/büyük harf uyumsuzluğunu önlemek için ToUpper() yapılır
             string cleanMatchId = matchId.Trim().ToUpper();
             _matchRef = _db.Collection("matches").Document(cleanMatchId);
 
@@ -116,11 +118,18 @@ namespace Gwent.Networking
                     GameState state = snapshot.ConvertTo<GameState>();
                     Core.GameManager.Instance.UpdateGameState(state);
 
+                    // 1. Oyuncu 2 Henüz Katılmadıysa Otomatik Katılmayı Sağla
                     if (state.status == GameStatus.Waiting
                         && state.player2Id == null
                         && Core.GameManager.Instance.LocalPlayerId != state.player1Id)
                     {
                         SetAsPlayer2();
+                    }
+
+                    // Durum Playing olduğunda HER İKİ OYUNCUDA DA ekran yönlendirmesini tetikle
+                    if (state.status == GameStatus.Playing)
+                    {
+                        OnGameStarted?.Invoke(state);
                     }
                 }
             });
