@@ -38,8 +38,9 @@ namespace Gwent.Models
         [FirestoreProperty] public int p2TotalStrength { get; set; }
 
         // Pas durumu (round bitişini belirlemek için)
-        [FirestoreProperty] public bool p1Passed { get; set; }
-        [FirestoreProperty] public bool p2Passed { get; set; }
+        [FirestoreProperty] public bool p1Passed { get; set; } = false;
+        [FirestoreProperty] public bool p2Passed { get; set; } = false;
+        [FirestoreProperty] public bool IsRoundOver => p1Passed && p2Passed;
 
         // Can / round takibi (Gwent: 2 round kaybedince oyunu kaybedersin)
         [FirestoreProperty] public int p1Lives { get; set; } = 2;

@@ -188,6 +188,11 @@ namespace Gwent.Networking
             state.lastMovePlayerId = playerId;
             state.currentTurnPlayerId = (state.currentTurnPlayerId == state.player1Id) ? state.player2Id : state.player1Id;
 
+            if (isPlayer1) 
+                state.p2Passed = false;
+            else 
+                state.p1Passed = false;
+
             await _matchRef.SetAsync(state);
         }
 
