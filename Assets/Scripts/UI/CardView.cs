@@ -11,6 +11,8 @@ namespace Gwent.UI
         [Header("Refs")]
         public Image artworkImage;
         public Image powerBadgeImage; // Faksiyona göre değişecek Güç Rozeti
+        public Image abilityIcon;
+        public Image rowIcon;
         public TextMeshProUGUI nameText;
         public TextMeshProUGUI powerText;
         public GameObject outline;    // Seçili olduğunda açılan Çerçeve Görseli
@@ -70,6 +72,10 @@ namespace Gwent.UI
                 }
             }
 
+            // --- YETENEK İKONU (ABILITY ICON) YÜKLEME ---
+            SetupRowIcon(data);
+            SetupAbilityIcon(data);
+
             // --- KARAKTER GÖRSELİ (ARTWORK) YÜKLEME ---
             if (artworkImage != null)
             {
@@ -88,6 +94,99 @@ namespace Gwent.UI
 
             // Kart ilk oluşturulduğunda outline her zaman kapalı olmalı
             SetSelected(false);
+        }
+
+        private void SetupRowIcon(CardData data)
+        {
+            if (rowIcon == null) return;
+
+            // Liderler, Özel ve Hava kartlarının sırası olmaz
+            if (data.Type == CardType.Leader || data.Type == CardType.Special || data.Type == CardType.Weather || data.row == "None" || data.row == "Any")
+            {
+                rowIcon.gameObject.SetActive(false);
+                return;
+            }
+
+            string iconName = GetRowIconFileName(data.row);
+
+            if (!string.IsNullOrEmpty(iconName))
+            {
+                string iconPath = $"images/rows/{iconName}";
+                Sprite iconSprite = Core.CardManager.LoadCardSprite(iconPath);
+
+                if (iconSprite != null)
+                {
+                    rowIcon.sprite = iconSprite;
+                    rowIcon.gameObject.SetActive(true);
+                    return;
+                }
+            }
+
+            rowIcon.gameObject.SetActive(false);
+        }
+
+        private string GetRowIconFileName(string row)
+        {
+            if (string.IsNullOrEmpty(row)) return null;
+
+            switch (row)
+            {
+                case "Melee":
+                case "Close Combat": return "row_Melee";
+                case "Ranged": return "row_Ranged";
+                case "Siege": return "row_Siege";
+                case "Agile": return "row_Agile";
+                default: return null;
+            }
+        }
+
+        private void SetupAbilityIcon(CardData data)
+        {
+            if (abilityIcon == null) return;
+
+            string iconName = GetAbilityIconFileName(data);
+
+            if (!string.IsNullOrEmpty(iconName))
+            {
+                string iconPath = $"images/abilities/{iconName}";
+                Sprite iconSprite = Core.CardManager.LoadCardSprite(iconPath);
+
+                if (iconSprite != null)
+                {
+                    abilityIcon.sprite = iconSprite;
+                    abilityIcon.gameObject.SetActive(true);
+                    return;
+                }
+            }
+
+            // Yeteneği yoksa veya görsel bulunamadıysa ikonu gizle
+            abilityIcon.gameObject.SetActive(false);
+        }
+
+        private string GetAbilityIconFileName(CardData data)
+        {
+            if (data == null) return null;
+
+            // Hava kartları yetenek adı "Weather" gelse bile isme/id'ye göre özelleştirilebilir
+            if (data.id.Contains("biting_frost") || data.name.Contains("Dondurucu Soğuk")) return "icon_BitingFrost";
+            if (data.id.Contains("impenetrable_fog") || data.name.Contains("Yoğun Sis")) return "icon_ImpenetrableFog";
+            if (data.id.Contains("torrential_rain") || data.name.Contains("Sağanak Yağmur")) return "icon_TorrentialRain";
+            if (data.ability == "WeatherClear" || data.ability == "ClearWeather" || data.name.Contains("Temiz Hava")) return "icon_ClearWeather";
+
+            switch (data.ability)
+            {
+                case "Medic": return "icon_Medic";
+                case "Spy": return "icon_Spy";
+                case "TightBond": return "icon_TightBond";
+                case "MoraleBoost": 
+                case "Morale": return "icon_MoraleBoost";
+                case "Muster": return "icon_Muster";
+                case "Scorch": 
+                case "Scorches": return "icon_Scorch";
+                case "CommandersHorn": 
+                case "Horn": return "icon_CommandersHorn";
+                default: return null;
+            }
         }
 
         public void SetSelected(bool isSelected)

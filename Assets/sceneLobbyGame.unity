@@ -293,7 +293,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 803.75, y: -705}
+  m_AnchoredPosition: {x: 800, y: -705}
   m_SizeDelta: {x: 530, y: 1400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &12878494
@@ -1995,7 +1995,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
     m_Left: 5
-    m_Right: 10
+    m_Right: 20
     m_Top: 5
     m_Bottom: 5
   m_ChildAlignment: 1
@@ -3683,7 +3683,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 271.25, y: -705}
+  m_AnchoredPosition: {x: 270, y: -705}
   m_SizeDelta: {x: 530, y: 1400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &510841128
@@ -6250,7 +6250,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &830850379
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11308,8 +11308,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
   m_Padding:
-    m_Left: 10
-    m_Right: 0
+    m_Left: 0
+    m_Right: 10
     m_Top: 10
     m_Bottom: 10
   m_ChildAlignment: 0
