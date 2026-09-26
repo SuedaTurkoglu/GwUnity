@@ -52,6 +52,10 @@ namespace Gwent.UI
 
         private int _lastRound = 1;
 
+        [Header("Pass Feedback References")]
+        public GameObject p1PassedBadge; // Player 1 Pas Rozeti / Yazısı
+        public GameObject p2PassedBadge; // Player 2 Pas Rozeti / Yazısı
+        public TextMeshProUGUI turnNotificationText;
 
         void Awake()
         {
@@ -104,6 +108,42 @@ namespace Gwent.UI
 
                 // --- 2, 3, 4 & 5. ADIMLAR: Kartları Mezarlığa Uçur ---
                 AnimateBoardToGraveyard();
+            }
+
+            // --- PAS DURUMU GERİ BİLDİRİMİ (FEEDBACK) ---
+            bool isLocalPlayerP1 = Core.GameManager.Instance.LocalPlayerId == state.player1Id;
+            bool localPassed = isLocalPlayerP1 ? state.p1Passed : state.p2Passed;
+            bool opponentPassed = isLocalPlayerP1 ? state.p2Passed : state.p1Passed;
+
+            // Pas Rozetlerini Aktif/Pasif Yap
+            if (p1PassedBadge != null) p1PassedBadge.SetActive(localPassed);
+            if (p2PassedBadge != null) p2PassedBadge.SetActive(opponentPassed);
+
+            // Bildirim Metni Güncelleme
+            if (turnNotificationText != null)
+            {
+                if (opponentPassed && !localPassed)
+                {
+                    turnNotificationText.text = "Rakip Pas Geçti! Raund bitene kadar hamle sırası sizde.";
+                    turnNotificationText.color = Color.yellow;
+                }
+                else if (localPassed && !opponentPassed)
+                {
+                    turnNotificationText.text = "Pas geçtiniz. Rakibin hamle yapması bekleniyor...";
+                    turnNotificationText.color = Color.gray;
+                }
+                else if (localPassed && opponentPassed)
+                {
+                    turnNotificationText.text = "İki taraf da pas geçti. Raund sonlandırılıyor...";
+                    turnNotificationText.color = Color.red;
+                }
+                else
+                {
+                    // İki taraf da henüz pas geçmediyse sıra kimde?
+                    bool isMyTurn = state.currentTurnPlayerId == Core.GameManager.Instance.LocalPlayerId;
+                    turnNotificationText.text = isMyTurn ? "Sizin Sıranız" : "Rakibin Sırası";
+                    turnNotificationText.color = isMyTurn ? Color.green : Color.white;
+                }
             }
 
             UpdateRowUI(p1MeleeContainer, state.p1Melee, p1GraveyardTransform);

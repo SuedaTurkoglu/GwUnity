@@ -35,18 +35,6 @@ namespace Gwent.UI
             }
         }
 
-        /// <summary>
-        /// Güç değiştiğinde (Moral bonusu, Hava kartı vb.) rozetin zıplama efekti.
-        /// </summary>
-        public void AnimatePowerChange()
-        {
-            if (powerBadgeImage != null)
-            {
-                powerBadgeImage.transform.DOKill();
-                powerBadgeImage.transform.DOPunchScale(Vector3.one * 0.35f, 0.25f, vibrato: 4);
-            }
-        }
-
         public void Setup(CardData data)
         {
             if (data == null) return;
@@ -71,7 +59,9 @@ namespace Gwent.UI
                 {
                     powerBadgeImage.gameObject.SetActive(true);
                     
-                    string badgePath = $"images/badges/badge_{data.faction}";
+                    string badgePath = (data.Type == CardType.Hero) 
+                        ? "images/badges/badge_Neutral" 
+                        : $"images/badges/badge_{data.faction}";
                     Sprite badgeSprite = Core.CardManager.LoadCardSprite(badgePath);
 
                     if (badgeSprite != null)

@@ -205,6 +205,20 @@ namespace Gwent.Networking
         {
             if (_matchRef == null) return;
 
+            var snapshot = await _matchRef.GetSnapshotAsync();
+            GameState state = snapshot.ConvertTo<GameState>();
+
+            string playerId = Core.GameManager.Instance.LocalPlayerId;
+            bool isPlayer1 = playerId == state.player1Id;
+
+            // pas veren oyuncu kart oynayamaz
+            bool myPassed = isPlayer1 ? state.p1Passed : state.p2Passed;
+            if (myPassed)
+            {
+                Debug.LogWarning("Pas verdiğiniz için bu raund hamle yapamazsınız!");
+                return;
+            }
+
             var cardData = Core.CardManager.Instance.GetCardById(cardId);
             if (cardData == null) return;
             bool isValidRow = cardData.row == "Any" || 
@@ -218,12 +232,6 @@ namespace Gwent.Networking
                 Debug.LogWarning($"Geçersiz sıra hamlesi! Kart Sırası: {cardData.row}, Hedef Sıra: {rowType}");
                 return;
             }
-
-            var snapshot = await _matchRef.GetSnapshotAsync();
-            GameState state = snapshot.ConvertTo<GameState>();
-
-            string playerId = Core.GameManager.Instance.LocalPlayerId;
-            bool isPlayer1 = playerId == state.player1Id;
 
             Core.AbilityManager.ResolveOnPlayAbility(state, cardData, isPlayer1, rowType);
 
@@ -249,12 +257,20 @@ namespace Gwent.Networking
 
             state.lastMoveCardId = cardId;
             state.lastMovePlayerId = playerId;
-            state.currentTurnPlayerId = (state.currentTurnPlayerId == state.player1Id) ? state.player2Id : state.player1Id;
 
-            if (isPlayer1) 
-                state.p2Passed = false;
-            else 
-                state.p1Passed = false;
+            // --- SIRA DEĞİŞİMİ VE PAS KONTROLÜ ---
+            bool opponentPassed = isPlayer1 ? state.p2Passed : state.p1Passed;
+
+            if (opponentPassed)
+            {
+                // Rakip pas verdiyse sıra aynı oyuncuda kalmaya devam eder (pas verene kadar kart oynayabiliriz)
+                state.currentTurnPlayerId = playerId;
+            }
+            else
+            {
+                // Rakip henüz pas vermediyse sıra rakibe geçer
+                state.currentTurnPlayerId = isPlayer1 ? state.player2Id : state.player1Id;
+            }
 
             await _matchRef.SetAsync(state);
         }
@@ -262,18 +278,30 @@ namespace Gwent.Networking
         public async Task PushPass()
         {
             if (_matchRef == null) return;
+
             var snapshot = await _matchRef.GetSnapshotAsync();
             GameState state = snapshot.ConvertTo<GameState>();
 
             string playerId = Core.GameManager.Instance.LocalPlayerId;
             bool isPlayer1 = playerId == state.player1Id;
 
-            if (isPlayer1) state.p1Passed = true; else state.p2Passed = true;
+            // Oyuncunun pas durumunu işaretle
+            if (isPlayer1) state.p1Passed = true;
+            else state.p2Passed = true;
 
-            if (!(isPlayer1 ? state.p2Passed : state.p1Passed))
-                state.currentTurnPlayerId = isPlayer1 ? state.player2Id : state.player1Id;
+            bool bothPassed = state.p1Passed && state.p2Passed;
 
-            if (state.p1Passed && state.p2Passed) ResolveRound(state);
+            if (bothPassed)
+            {
+                // Her iki taraf da pas verdiyse raundu bitir
+                ResolveRound(state);
+            }
+            else
+            {
+                // Yalnızca biz pas verdiysek, sıra kesin olarak pas vermemiş olan rakibe geçer
+                string opponentId = isPlayer1 ? state.player2Id : state.player1Id;
+                state.currentTurnPlayerId = opponentId;
+            }
 
             await _matchRef.SetAsync(state);
         }

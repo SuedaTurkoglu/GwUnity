@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System;
+using TMPro;
 
 namespace Gwent.UI
 {
@@ -101,6 +102,23 @@ namespace Gwent.UI
             #if UNITY_ANDROID && !UNITY_EDITOR
             Handheld.Vibrate();
             #endif
+        }
+
+        /// <summary>
+        /// Pas geçildiğinde ekranda beliren dinamik pop-up uyarısı.
+        /// </summary>
+        public void PlayPassNotification(TextMeshProUGUI notificationText, string message)
+        {
+            if (notificationText == null) return;
+
+            notificationText.text = message;
+            notificationText.transform.DOKill();
+            notificationText.transform.localScale = Vector3.zero;
+            notificationText.gameObject.SetActive(true);
+
+            Sequence passSeq = DOTween.Sequence();
+            passSeq.Append(notificationText.transform.DOScale(Vector3.one * 1.2f, 0.25f).SetEase(Ease.OutBack));
+            passSeq.Append(notificationText.transform.DOScale(Vector3.one, 0.15f));
         }
     }
 }
