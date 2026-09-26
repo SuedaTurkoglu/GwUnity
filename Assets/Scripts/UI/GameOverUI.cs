@@ -67,6 +67,7 @@ namespace Gwent.UI
             FirestoreGameManager.Instance?.LeaveMatch();
             GameManager.Instance?.ResetState();
             LobbyManager.Instance?.ReturnToLobby();
+            UIManager.Instance?.ResetRoundTracking();
         }
     }
 }

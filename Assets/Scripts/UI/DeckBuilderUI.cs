@@ -18,7 +18,6 @@ namespace Gwent.UI
 
         [Header("UI Elements")]
         public TextMeshProUGUI countText;       // Örn: "Birlik: 18 / 22 (Min) | Özel: 4 / 10 (Max)"
-        public TextMeshProUGUI leaderText;      // Seçili Lider Bilgisi
         public Button saveButton;
         public TMP_Dropdown factionFilter;      // Faksiyon filtreleme
 
@@ -225,12 +224,6 @@ namespace Gwent.UI
 
             if (countText != null)
                 countText.text = $"Birim: {unitCount}/22 (Min) Özel: {specialCount}/10 (Max)";
-
-            if (leaderText != null)
-            {
-                var leader = Core.CardManager.Instance.GetCardById(selectedLeaderId);
-                leaderText.text = leader != null ? $"Lider: {leader.name}" : "Lider: Seçilmedi";
-            }
         }
 
         public void SelectLeader(string leaderId)

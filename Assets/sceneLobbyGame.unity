@@ -771,6 +771,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 119950929}
   m_CullTransparentMesh: 1
+--- !u!1 &139499884
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 139499885}
+  m_Layer: 5
+  m_Name: AnimationLayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &139499885
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 139499884}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 861604508}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &151255915
 GameObject:
   m_ObjectHideFlags: 0
@@ -3961,6 +3996,9 @@ MonoBehaviour:
   cardPrefab: {fileID: 1303950339840665541, guid: 449230bfdba44d642a2de716baeb47cf, type: 3}
   roundInfoText: {fileID: 681272940}
   feedbackText: {fileID: 2105756052}
+  p1GraveyardTransform: {fileID: 1713041364}
+  p2GraveyardTransform: {fileID: 1713041364}
+  animationLayer: {fileID: 139499885}
 --- !u!114 &595431458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4092,7 +4130,6 @@ MonoBehaviour:
   selectedCardsContainer: {fileID: 1184616325}
   leaderSelectionContainer: {fileID: 70056417}
   countText: {fileID: 1267110925}
-  leaderText: {fileID: 0}
   saveButton: {fileID: 379742511}
   factionFilter: {fileID: 627862684}
   cardPrefab: {fileID: 1303950339840665541, guid: 449230bfdba44d642a2de716baeb47cf, type: 3}
@@ -4253,6 +4290,7 @@ RectTransform:
   - {fileID: 267182622}
   - {fileID: 1849516266}
   - {fileID: 830850379}
+  - {fileID: 1713041364}
   m_Father: {fileID: 861604508}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6729,6 +6767,7 @@ RectTransform:
   - {fileID: 294023454}
   - {fileID: 623125993}
   - {fileID: 2105756051}
+  - {fileID: 139499885}
   - {fileID: 2090944322}
   - {fileID: 655370033}
   - {fileID: 1217017982}
@@ -11881,6 +11920,64 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 0
+--- !u!1 &1713041363
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1713041364}
+  - component: {fileID: 1713041365}
+  m_Layer: 5
+  m_Name: Graveyard
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1713041364
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713041363}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 623125993}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 50, y: 150}
+  m_SizeDelta: {x: 3, y: 3}
+  m_Pivot: {x: 1, y: 0.5}
+--- !u!114 &1713041365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713041363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &1748788583
 GameObject:
   m_ObjectHideFlags: 0
