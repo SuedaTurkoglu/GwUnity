@@ -242,7 +242,11 @@ namespace Gwent.Networking
 
             if (!isInstantSpell)
             {
-                if (isPlayer1) AddCardToRow(state.p1Melee, state.p1Ranged, state.p1Siege, cardId, rowType);
+
+                bool isSpy = cardData.ability == "Spy";
+                bool targetIsPlayer1 = isSpy ? !isPlayer1 : isPlayer1;
+
+                if (targetIsPlayer1) AddCardToRow(state.p1Melee, state.p1Ranged, state.p1Siege, cardId, rowType);
                 else AddCardToRow(state.p2Melee, state.p2Ranged, state.p2Siege, cardId, rowType);
             }
             else

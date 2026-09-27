@@ -94,8 +94,12 @@ namespace Gwent.UI
         {
             if (state == null) return;
 
-            p1ScoreText.text = $"P1 Total: {state.p1TotalStrength}";
-            p2ScoreText.text = $"P2 Total: {state.p2TotalStrength}";
+            bool isLocalP1 = Core.GameManager.Instance.LocalPlayerId == state.player1Id;
+            int myTotal = isLocalP1 ? state.p1TotalStrength : state.p2TotalStrength;
+            int oppTotal = isLocalP1 ? state.p2TotalStrength : state.p1TotalStrength;
+
+            p1ScoreText.text = $"Sen: {myTotal}";
+            p2ScoreText.text = $"Rakip: {oppTotal}";
 
             if (roundInfoText != null)
             {
@@ -400,7 +404,11 @@ namespace Gwent.UI
             FirestoreGameManager.Instance.PushMove(_selectedCardId, rowType);
 
             bool isPlayer1 = Core.GameManager.Instance.LocalPlayerId == Core.GameManager.Instance.CurrentState.player1Id;
-            RectTransform targetContainer = GetTargetRowContainer(rowType, isPlayer1);
+
+            bool isSpy = cardData.ability == "Spy";
+            bool targetContainerIsPlayer1 = isSpy ? !isPlayer1 : isPlayer1;
+
+            RectTransform targetContainer = GetTargetRowContainer(rowType, targetContainerIsPlayer1);
 
             CardAnimationManager.Instance.PlayCardMoveAnimation(
                 _selectedCardView.GetComponent<RectTransform>(),
