@@ -22,6 +22,27 @@ namespace Gwent.UI
             DOTween.SetTweensCapacity(500, 50);
         }
 
+        public void PlayVanish(RectTransform cardRect, float duration = 0.2f, Action onComplete = null)
+        {
+            if (cardRect == null) return;
+
+            LayoutElement layoutElement = cardRect.GetComponent<LayoutElement>();
+            if (layoutElement == null) layoutElement = cardRect.gameObject.AddComponent<LayoutElement>();
+            layoutElement.ignoreLayout = true; // Layout Group diğer kartları anında kaydırmasın
+
+            CanvasGroup cg = cardRect.GetComponent<CanvasGroup>();
+            if (cg == null) cg = cardRect.gameObject.AddComponent<CanvasGroup>();
+
+            Sequence seq = DOTween.Sequence();
+            seq.Join(cardRect.DOScale(Vector3.one * 0.7f, duration).SetEase(Ease.InQuad));
+            seq.Join(cg.DOFade(0f, duration));
+            seq.OnComplete(() =>
+            {
+                onComplete?.Invoke();
+                Destroy(cardRect.gameObject);
+            });
+        }
+
         /// <summary>
         /// 1. SÜZÜLEREK SAHAYA/ELE GİTME ANIMASYONU
         /// Kart başlangıç noktasından hedef sıraya yumuşak bir kavisle ve hafif eğimle süzülür.

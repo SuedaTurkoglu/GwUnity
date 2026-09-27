@@ -222,18 +222,8 @@ namespace Gwent.Networking
             var cardData = Core.CardManager.Instance.GetCardById(cardId);
             if (cardData == null) return;
 
-            bool isWeatherCard = cardData.Type == CardType.Weather || 
-                                cardData.ability == "Weather" || 
-                                cardData.ability == "ClearWeather" || 
-                                cardData.ability == "WeatherClear";
             bool isValidRow = false;
-
-            if (isWeatherCard)
-            {
-                isValidRow = true;
-                rowType = "Weather"; 
-            }
-            else if (cardData.row == "Agile")
+            if (cardData.row == "Agile")
             {
                 isValidRow = (rowType == "Melee" || rowType == "Close Combat" || rowType == "Ranged");
             }

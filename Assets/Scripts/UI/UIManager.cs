@@ -299,9 +299,7 @@ namespace Gwent.UI
                     RectTransform rect = removedView.GetComponent<RectTransform>();
                     if (rect != null && graveyardTarget != null)
                     {
-                        Transform flightParent = animationLayer != null ? (Transform)animationLayer : transform;
-                        rect.SetParent(flightParent, true); // Düzeni bozmamak için uçuş katmanına al
-                        CardAnimationManager.Instance.AnimateToGraveyard(rect, graveyardTarget);
+                        CardAnimationManager.Instance.PlayVanish(rect);
                     }
                     else
                     {
