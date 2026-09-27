@@ -250,54 +250,60 @@ namespace Gwent.UI
 
         private void UpdateRowUI(Transform container, List<string> cardIds, RectTransform graveyardTarget)
         {
-            var existingViews = new Dictionary<string, CardView>();
+            // MÇ/Muster Çakışmasını Önleme: Sözlük yerine mevcut çocuk objeleri bir listede tutuyoruz
+            List<CardView> existingViews = new List<CardView>();
             foreach (Transform child in container)
             {
                 var cv = child.GetComponent<CardView>();
-                if (cv != null && !string.IsNullOrEmpty(cv.CardId))
-                    existingViews[cv.CardId] = cv;
+                if (cv != null)
+                    existingViews.Add(cv);
             }
 
-            var newIdSet = new HashSet<string>(cardIds);
-
-            // Artık listede olmayan kartlar: anında silmek yerine mezara UÇUR
-            foreach (var kvp in existingViews)
+            // 1. Sahada Fazladan Olan / Silinecek Kartları Temizle/Mezarlığa At
+            while (existingViews.Count > cardIds.Count)
             {
-                if (!newIdSet.Contains(kvp.Key))
+                CardView lastView = existingViews[existingViews.Count - 1];
+                existingViews.RemoveAt(existingViews.Count - 1);
+
+                if (lastView != null)
                 {
-                    RectTransform rect = kvp.Value.GetComponent<RectTransform>();
-                    if (rect == null) { Destroy(kvp.Value.gameObject); continue; }
-
-                    if (graveyardTarget == null)
+                    RectTransform rect = lastView.GetComponent<RectTransform>();
+                    if (rect != null && graveyardTarget != null)
                     {
-                        // Hedef yoksa eski davranış: doğrudan sil
-                        Destroy(kvp.Value.gameObject);
-                        continue;
+                        Transform flightParent = animationLayer != null ? (Transform)animationLayer : transform;
+                        rect.SetParent(flightParent, true);
+                        CardAnimationManager.Instance.AnimateToGraveyard(rect, graveyardTarget);
                     }
-
-                    Transform flightParent = animationLayer != null ? (Transform)animationLayer : transform;
-                    rect.SetParent(flightParent, true); // Canvas altındaki uçuş katmanına al
-                    CardAnimationManager.Instance.AnimateToGraveyard(rect, graveyardTarget);
+                    else
+                    {
+                        Destroy(lastView.gameObject);
+                    }
                 }
             }
 
+            // 2. Kartları Eşleştir ve Eksik Olan (Muster İle Gelen) Yeni Kartları Sahaya Oluştur
             for (int i = 0; i < cardIds.Count; i++)
             {
                 string id = cardIds[i];
                 var cardData = CardManager.Instance.GetCardById(id);
                 if (cardData == null) { Debug.LogWarning($"Card id bulunamadı: {id}"); continue; }
 
-                if (existingViews.TryGetValue(id, out var view))
+                if (i < existingViews.Count)
                 {
-                    view.transform.SetSiblingIndex(i);
-                    view.Setup(cardData);
+                    // Zaten var olan kartı güncelle ve sırasını koru
+                    existingViews[i].transform.SetSiblingIndex(i);
+                    existingViews[i].Setup(cardData);
                 }
                 else
                 {
+                    // Muster ile yeni eklenen kart için sıraya yeni GameObject üret
                     GameObject cardObj = Instantiate(cardPrefab, container);
                     cardObj.transform.SetSiblingIndex(i);
-                    var cardView = cardObj.GetComponent<CardView>();
-                    if (cardView != null) cardView.Setup(cardData);
+                    var newCardView = cardObj.GetComponent<CardView>();
+                    if (newCardView != null)
+                    {
+                        newCardView.Setup(cardData);
+                    }
                 }
             }
         }
@@ -371,7 +377,7 @@ namespace Gwent.UI
             _lastRound = 1;
         }
 
-        public void OnRowClicked(string rowType)
+        public async void OnRowClicked(string rowType)
         {
             if (string.IsNullOrEmpty(_selectedCardId)) return;
 
@@ -401,8 +407,6 @@ namespace Gwent.UI
                 return; // Seçim iptal olmuyor, kullanıcı doğru sıraya tıklayabilir
             }
 
-            FirestoreGameManager.Instance.PushMove(_selectedCardId, rowType);
-
             bool isPlayer1 = Core.GameManager.Instance.LocalPlayerId == Core.GameManager.Instance.CurrentState.player1Id;
 
             bool isSpy = cardData.ability == "Spy";
@@ -410,19 +414,28 @@ namespace Gwent.UI
 
             RectTransform targetContainer = GetTargetRowContainer(rowType, targetContainerIsPlayer1);
 
-            CardAnimationManager.Instance.PlayCardMoveAnimation(
-                _selectedCardView.GetComponent<RectTransform>(),
-                targetContainer
-            );
-
-            // Kart oynandı, outline'ı kapat
+            // Oynanan ilk ana kart için görsel süzülme animasyonunu oynat
             if (_selectedCardView != null)
             {
+                CardAnimationManager.Instance.PlayCardMoveAnimation(
+                    _selectedCardView.GetComponent<RectTransform>(),
+                    targetContainer
+                );
+
                 _selectedCardView.SetSelected(false);
                 _selectedCardView = null;
             }
 
+            string playedId = _selectedCardId;
             _selectedCardId = null;
+
+            await FirestoreGameManager.Instance.PushMove(playedId, rowType);
+
+            // Firestore'a yazılan güncel Muster durumunu local UI'a anında yansıt
+            if (Core.GameManager.Instance.CurrentState != null)
+            {
+                RefreshBoard(Core.GameManager.Instance.CurrentState);
+            }
         }
 
         private RectTransform GetTargetRowContainer(string rowType, bool isPlayer1)
