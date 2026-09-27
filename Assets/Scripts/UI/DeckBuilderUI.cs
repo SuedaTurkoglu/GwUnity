@@ -19,6 +19,7 @@ namespace Gwent.UI
         [Header("UI Elements")]
         public TextMeshProUGUI countText;       // Örn: "Birlik: 18 / 22 (Min) | Özel: 4 / 10 (Max)"
         public Button saveButton;
+        public Button clearDeckButton;
         public TMP_Dropdown factionFilter;      // Faksiyon filtreleme
 
         [Header("Prefabs")]
@@ -32,6 +33,7 @@ namespace Gwent.UI
         {
             if (rootPanel != null) rootPanel.SetActive(false);
             if (saveButton != null) saveButton.onClick.AddListener(HandleSaveDeck);
+            if (clearDeckButton != null) clearDeckButton.onClick.AddListener(ClearDeck);
             if (factionFilter != null) factionFilter.onValueChanged.AddListener(OnFactionChanged);
         }
 
@@ -46,6 +48,26 @@ namespace Gwent.UI
         public void CloseDeckBuilder()
         {
             rootPanel.SetActive(false);
+        }
+
+        /// <summary>
+        /// Desteye eklenmiş tüm kartları ve seçili lideri tek tıkla boşaltır.
+        /// </summary>
+        public void ClearDeck()
+        {
+            if (currentDeck.Count == 0 && string.IsNullOrEmpty(selectedLeaderId))
+            {
+                UI.UIManager.Instance.ShowFeedback("Deste zaten boş!");
+                return;
+            }
+
+            currentDeck.Clear();
+            selectedLeaderId = ""; // lider seçimini de sıfırlar
+
+            RefreshSelectedCards();
+            RefreshLeaderCards();
+            
+            UI.UIManager.Instance.ShowFeedback("Deste temizlendi.");
         }
 
         private void OnFactionChanged(int index)
