@@ -94,12 +94,25 @@ namespace Gwent.UI
         {
             if (state == null) return;
 
-            bool isLocalP1 = Core.GameManager.Instance.LocalPlayerId == state.player1Id;
+            string localPlayerId = Core.GameManager.Instance.LocalPlayerId;
+            bool isLocalP1 = (localPlayerId == state.player1Id);
             int myTotal = isLocalP1 ? state.p1TotalStrength : state.p2TotalStrength;
             int oppTotal = isLocalP1 ? state.p2TotalStrength : state.p1TotalStrength;
 
-            p1ScoreText.text = $"Sen: {myTotal}";
-            p2ScoreText.text = $"Rakip: {oppTotal}";
+            // Alt taraf (Yerel Oyuncu) Verileri
+            List<string> myMelee = isLocalP1 ? state.p1Melee : state.p2Melee;
+            List<string> myRanged = isLocalP1 ? state.p1Ranged : state.p2Ranged;
+            List<string> mySiege = isLocalP1 ? state.p1Siege : state.p2Siege;
+            int myTotalStrength = isLocalP1 ? state.p1TotalStrength : state.p2TotalStrength;
+
+            // Üst taraf (Rakip Oyuncu) Verileri
+            List<string> oppMelee = isLocalP1 ? state.p2Melee : state.p1Melee;
+            List<string> oppRanged = isLocalP1 ? state.p2Ranged : state.p1Ranged;
+            List<string> oppSiege = isLocalP1 ? state.p2Siege : state.p1Siege;
+            int oppTotalStrength = isLocalP1 ? state.p2TotalStrength : state.p1TotalStrength;
+
+            p1ScoreText.text = $"Sen: {myTotalStrength}";
+            p2ScoreText.text = $"Rakip: {oppTotalStrength}";
 
             if (roundInfoText != null)
             {
@@ -115,9 +128,8 @@ namespace Gwent.UI
             }
 
             // --- PAS DURUMU GERİ BİLDİRİMİ (FEEDBACK) ---
-            bool isLocalPlayerP1 = Core.GameManager.Instance.LocalPlayerId == state.player1Id;
-            bool localPassed = isLocalPlayerP1 ? state.p1Passed : state.p2Passed;
-            bool opponentPassed = isLocalPlayerP1 ? state.p2Passed : state.p1Passed;
+            bool localPassed = isLocalP1 ? state.p1Passed : state.p2Passed;
+            bool opponentPassed = isLocalP1 ? state.p2Passed : state.p1Passed;
 
             // Pas Rozetlerini Aktif/Pasif Yap
             if (p1PassedBadge != null) p1PassedBadge.SetActive(localPassed);
@@ -150,13 +162,13 @@ namespace Gwent.UI
                 }
             }
 
-            UpdateRowUI(p1MeleeContainer, state.p1Melee, p1GraveyardTransform);
-            UpdateRowUI(p1RangedContainer, state.p1Ranged, p1GraveyardTransform);
-            UpdateRowUI(p1SiegeContainer, state.p1Siege, p1GraveyardTransform);
+            UpdateRowUI(p1MeleeContainer, myMelee, p1GraveyardTransform);
+            UpdateRowUI(p1RangedContainer, myRanged, p1GraveyardTransform);
+            UpdateRowUI(p1SiegeContainer, mySiege, p1GraveyardTransform);
 
-            UpdateRowUI(p2MeleeContainer, state.p2Melee, p2GraveyardTransform);
-            UpdateRowUI(p2RangedContainer, state.p2Ranged, p2GraveyardTransform);
-            UpdateRowUI(p2SiegeContainer, state.p2Siege, p2GraveyardTransform);
+            UpdateRowUI(p2MeleeContainer, oppMelee, p2GraveyardTransform);
+            UpdateRowUI(p2RangedContainer, oppRanged, p2GraveyardTransform);
+            UpdateRowUI(p2SiegeContainer, oppSiege, p2GraveyardTransform);
 
             UpdateLocalHand(state);
             UpdateLeaderUI(state);
@@ -248,9 +260,9 @@ namespace Gwent.UI
             }
         }
 
-        private void UpdateRowUI(Transform container, List<string> cardIds, RectTransform graveyardTarget)
+        private void UpdateRowUI(Transform container, List<string> containerCardIds, RectTransform graveyardTarget)
         {
-            // MÇ/Muster Çakışmasını Önleme: Sözlük yerine mevcut çocuk objeleri bir listede tutuyoruz
+            // Konteynırdaki mevcut tüm CardView nesnelerini topla
             List<CardView> existingViews = new List<CardView>();
             foreach (Transform child in container)
             {
@@ -259,44 +271,61 @@ namespace Gwent.UI
                     existingViews.Add(cv);
             }
 
-            // 1. Sahada Fazladan Olan / Silinecek Kartları Temizle/Mezarlığa At
-            while (existingViews.Count > cardIds.Count)
-            {
-                CardView lastView = existingViews[existingViews.Count - 1];
-                existingViews.RemoveAt(existingViews.Count - 1);
+            // Sahada olup da yeni veride (containerCardIds) olmayan kartlar tespit et (Scorch vb.)
+            List<string> remainingTargetIds = new List<string>(containerCardIds);
+            List<CardView> viewsToRemove = new List<CardView>();
+            List<CardView> viewsToKeep = new List<CardView>();
 
-                if (lastView != null)
+            foreach (var cv in existingViews)
+            {
+                if (remainingTargetIds.Contains(cv.CardId))
                 {
-                    RectTransform rect = lastView.GetComponent<RectTransform>();
+                    // Kart hala sırada duruyor
+                    viewsToKeep.Add(cv);
+                    remainingTargetIds.Remove(cv.CardId);
+                }
+                else
+                {
+                    // Kart sahadan silinmiş! (Scorch / Yakma veya Özel Yetenek ile imha)
+                    viewsToRemove.Add(cv);
+                }
+            }
+
+            // Silinen kart(lar)ı Mezarlığa Uçur (AnimateToGraveyard)
+            foreach (var removedView in viewsToRemove)
+            {
+                if (removedView != null)
+                {
+                    RectTransform rect = removedView.GetComponent<RectTransform>();
                     if (rect != null && graveyardTarget != null)
                     {
                         Transform flightParent = animationLayer != null ? (Transform)animationLayer : transform;
-                        rect.SetParent(flightParent, true);
+                        rect.SetParent(flightParent, true); // Düzeni bozmamak için uçuş katmanına al
                         CardAnimationManager.Instance.AnimateToGraveyard(rect, graveyardTarget);
                     }
                     else
                     {
-                        Destroy(lastView.gameObject);
+                        Destroy(removedView.gameObject);
                     }
                 }
             }
 
-            // 2. Kartları Eşleştir ve Eksik Olan (Muster İle Gelen) Yeni Kartları Sahaya Oluştur
-            for (int i = 0; i < cardIds.Count; i++)
+            // Kalan kartları güncelle ve eksik olanları (yeni oynanan / Muster ile gelen) sahaya oluştur
+            for (int i = 0; i < containerCardIds.Count; i++)
             {
-                string id = cardIds[i];
+                string id = containerCardIds[i];
                 var cardData = CardManager.Instance.GetCardById(id);
                 if (cardData == null) { Debug.LogWarning($"Card id bulunamadı: {id}"); continue; }
 
-                if (i < existingViews.Count)
+                if (i < viewsToKeep.Count)
                 {
-                    // Zaten var olan kartı güncelle ve sırasını koru
-                    existingViews[i].transform.SetSiblingIndex(i);
-                    existingViews[i].Setup(cardData);
+                    // Zaten var olan kartın görselini ve sırasını koru
+                    viewsToKeep[i].transform.SetSiblingIndex(i);
+                    viewsToKeep[i].Setup(cardData);
                 }
                 else
                 {
-                    // Muster ile yeni eklenen kart için sıraya yeni GameObject üret
+                    // Yeni eklenen kart (P2 hamlesi veya Muster ile gelenler)
                     GameObject cardObj = Instantiate(cardPrefab, container);
                     cardObj.transform.SetSiblingIndex(i);
                     var newCardView = cardObj.GetComponent<CardView>();
@@ -395,16 +424,46 @@ namespace Gwent.UI
                 return;
             }
 
-            bool isValidRow = cardData.row == "Any" ||
-                            cardData.row == "Agile" ||
-                            cardData.row == rowType ||
-                            cardData.Type == CardType.Special ||
-                            cardData.Type == CardType.Weather;
+
+            bool isWeatherCard = cardData.Type == CardType.Weather || 
+                                cardData.ability == "Weather" || 
+                                cardData.ability == "ClearWeather" || 
+                                cardData.ability == "WeatherClear";
+            bool isValidRow = false;
+
+            if (isWeatherCard)
+            {
+                // Hava ve Temiz Hava kartları birim sırasına girmez, Weather efekti olarak işlenir
+                isValidRow = true;
+                rowType = "Weather"; 
+            }
+            else if (cardData.row == "Agile")
+            {
+                isValidRow = (rowType == "Melee" || rowType == "Close Combat" || rowType == "Ranged");
+            }
+            else if (cardData.Type == CardType.Weather || cardData.Type == CardType.Special || cardData.row == "Any")
+            {
+                isValidRow = true;
+            }
+            // Standart Birlik Kartları: Kartın kendi tanımında yazan sıraya denk gelmeli
+            else
+            {
+                isValidRow = (cardData.row == rowType || 
+                            (cardData.row == "Close Combat" && rowType == "Melee") ||
+                            (cardData.row == "Melee" && rowType == "Close Combat"));
+            }
 
             if (!isValidRow)
             {
-                ShowFeedback($"'{cardData.name}' sadece {cardData.row} sırasına oynanabilir.");
-                return; // Seçim iptal olmuyor, kullanıcı doğru sıraya tıklayabilir
+                if (cardData.row == "Agile")
+                {
+                    ShowFeedback($"'{cardData.name}' (Agile) sadece Yakın Dövüş veya Menzilli sırasına oynanabilir!");
+                }
+                else
+                {
+                    ShowFeedback($"'{cardData.name}' sadece {cardData.row} sırasına oynanabilir.");
+                }
+                return;
             }
 
             bool isPlayer1 = Core.GameManager.Instance.LocalPlayerId == Core.GameManager.Instance.CurrentState.player1Id;
@@ -430,19 +489,14 @@ namespace Gwent.UI
             _selectedCardId = null;
 
             await FirestoreGameManager.Instance.PushMove(playedId, rowType);
-
-            // Firestore'a yazılan güncel Muster durumunu local UI'a anında yansıt
-            if (Core.GameManager.Instance.CurrentState != null)
-            {
-                RefreshBoard(Core.GameManager.Instance.CurrentState);
-            }
         }
 
-        private RectTransform GetTargetRowContainer(string rowType, bool isPlayer1)
+        private RectTransform GetTargetRowContainer(string rowType, bool targetIsLocalBoard)
         {
-            Transform melee = isPlayer1 ? p1MeleeContainer : p2MeleeContainer;
-            Transform ranged = isPlayer1 ? p1RangedContainer : p2RangedContainer;
-            Transform siege = isPlayer1 ? p1SiegeContainer : p2SiegeContainer;
+            // targetIsLocalBoard == true ise ALT konteynerler (p1), false ise ÜST konteynerler (p2)
+            Transform melee = targetIsLocalBoard ? p1MeleeContainer : p2MeleeContainer;
+            Transform ranged = targetIsLocalBoard ? p1RangedContainer : p2RangedContainer;
+            Transform siege = targetIsLocalBoard ? p1SiegeContainer : p2SiegeContainer;
 
             switch (rowType)
             {

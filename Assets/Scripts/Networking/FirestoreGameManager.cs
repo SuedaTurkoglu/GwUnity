@@ -221,15 +221,36 @@ namespace Gwent.Networking
 
             var cardData = Core.CardManager.Instance.GetCardById(cardId);
             if (cardData == null) return;
-            bool isValidRow = cardData.row == "Any" || 
-                     cardData.row == "Agile" || 
-                     cardData.row == rowType || 
-                     cardData.Type == CardType.Special || 
-                     cardData.Type == CardType.Weather;
+
+            bool isWeatherCard = cardData.Type == CardType.Weather || 
+                                cardData.ability == "Weather" || 
+                                cardData.ability == "ClearWeather" || 
+                                cardData.ability == "WeatherClear";
+            bool isValidRow = false;
+
+            if (isWeatherCard)
+            {
+                isValidRow = true;
+                rowType = "Weather"; 
+            }
+            else if (cardData.row == "Agile")
+            {
+                isValidRow = (rowType == "Melee" || rowType == "Close Combat" || rowType == "Ranged");
+            }
+            else if (cardData.Type == CardType.Weather || cardData.Type == CardType.Special || cardData.row == "Any")
+            {
+                isValidRow = true;
+            }
+            else
+            {
+                isValidRow = (cardData.row == rowType || 
+                            (cardData.row == "Close Combat" && rowType == "Melee") ||
+                            (cardData.row == "Melee" && rowType == "Close Combat"));
+            }
 
             if (!isValidRow)
             {
-                Debug.LogWarning($"Geçersiz sıra hamlesi! Kart Sırası: {cardData.row}, Hedef Sıra: {rowType}");
+                Debug.LogWarning($"Geçersiz sıra hamlesi engellendi: {cardData.name} -> {rowType}");
                 return;
             }
 
@@ -242,7 +263,6 @@ namespace Gwent.Networking
 
             if (!isInstantSpell)
             {
-
                 bool isSpy = cardData.ability == "Spy";
                 bool targetIsPlayer1 = isSpy ? !isPlayer1 : isPlayer1;
 
