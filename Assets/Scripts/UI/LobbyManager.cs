@@ -11,7 +11,6 @@ namespace Gwent.UI
 {
     public class LobbyManager : MonoBehaviour
     {
-        // --- 1. SINGLETON INSTANCE EKLEMESİ ---
         public static LobbyManager Instance { get; private set; }
 
         [Header("Main UI References")]
@@ -112,6 +111,13 @@ namespace Gwent.UI
 
             // Lobiye dönüldüğünde maç listesini ve yenile butonunu gizle
             SetLobbyListVisibility(false);
+
+            // eldeki ve sahnedeki tüm objeleri temizle
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ClearHandAndBoardUI();
+                UIManager.Instance.ResetRoundTracking();
+            }
 
             if (matchIdInput != null) matchIdInput.text = "";
             if (matchIdDisplay != null) matchIdDisplay.text = "";

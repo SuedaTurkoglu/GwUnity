@@ -161,6 +161,7 @@ namespace Gwent.Networking
                                       : GenerateRandomDeck(state.player1Faction);
 
             // Elini dağıt ve kalan desteyi state'e kaydet
+            state.p1Hand.Clear();
             var p1Draw = DrawCards(p1FullDeck, 10);
             state.p1Hand = p1Draw.picked;
             state.p1Deck = p1Draw.remaining;
@@ -173,6 +174,7 @@ namespace Gwent.Networking
                                       : GenerateRandomDeck(state.player2Faction);
 
             // Elini dağıt ve kalan desteyi state'e kaydet
+            state.p2Hand.Clear();
             var p2Draw = DrawCards(p2FullDeck, 10);
             state.p2Hand = p2Draw.picked;
             state.p2Deck = p2Draw.remaining;

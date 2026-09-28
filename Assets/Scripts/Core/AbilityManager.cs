@@ -495,7 +495,7 @@ namespace Gwent.Core
                 foreach (var id in row)
                 {
                     var card = CardManager.Instance.GetCardById(id);
-                    if (card != null && card.ability != "Hero" && card.ability != "Decoy")
+                    if (card != null && card.ability != "Hero" && card.ability != "Decoy" && card.faction != "Neutral")
                         boardCards.Add((row, id));
                 }
             }

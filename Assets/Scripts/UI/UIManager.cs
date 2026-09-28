@@ -662,5 +662,46 @@ namespace Gwent.UI
         {
             if (deckPopupPanel != null) deckPopupPanel.SetActive(false);
         }
+
+        /// <summary>
+        /// Yeni maça başlarken veya lobiye dönerken ekrandaki el ve tahta kartlarını sıfırlar.
+        /// </summary>
+        public void ClearHandAndBoardUI()
+        {
+            // 1. Eldeki kart objelerini temizle
+            if (handContainer != null)
+            {
+                foreach (Transform child in handContainer)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+
+            // 2. Tahtadaki tüm sıraları temizle
+            ClearContainer(p1MeleeContainer);
+            ClearContainer(p1RangedContainer);
+            ClearContainer(p1SiegeContainer);
+
+            ClearContainer(p2MeleeContainer);
+            ClearContainer(p2RangedContainer);
+            ClearContainer(p2SiegeContainer);
+
+            // 3. Seçili kart referanslarını sıfırla
+            if (_selectedCardView != null)
+            {
+                _selectedCardView.SetSelected(false);
+                _selectedCardView = null;
+            }
+            _selectedCardId = null;
+        }
+
+        private void ClearContainer(Transform container)
+        {
+            if (container == null) return;
+            foreach (Transform child in container)
+            {
+                Destroy(child.gameObject);
+            }
+        }
     }
 }
